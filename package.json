@@ -1,0 +1,31 @@
+{
+  "name": "js-bioelastic-state-recovery",
+  "version": "1.0.0",
+  "description": "Interactive web platform showcasing bioelastic haptic transducer research",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8000",
+    "dev": "npx http-server -p 8000 -o",
+    "test": "echo \"No tests specified yet\" && exit 0",
+    "deploy": "echo \"Deploy script not implemented yet\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MuzaPro/JS-Bioelastic_state_recovery.git"
+  },
+  "keywords": [
+    "haptic",
+    "bioelastic",
+    "scientific-communication",
+    "interactive",
+    "research",
+    "transducer",
+    "nature-publication"
+  ],
+  "author": "Muza Productions",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MuzaPro/JS-Bioelastic_state_recovery/issues"
+  },
+  "homepage": "https://github.com/MuzaPro/JS-Bioelastic_state_recovery#readme"
+}
