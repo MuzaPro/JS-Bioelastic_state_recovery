@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Report: Optimizing Web Animations & State Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Visualization & Content Choices: 
+        - Report Info: Executive Summary, Section Overviews, Conclusions. Goal: Inform. Viz/Presentation: Text blocks. Interaction: None. Justification: Standard for textual summaries.
+        - Report Info: Table 1 (Animation Format Comparison), Table 2 (WebP Feature Support). Goal: Compare/Inform. Viz/Presentation: HTML Tables. Interaction: None. Justification: Direct and clear representation of tabular data.
+        - Report Info: Code examples (webpmux, ffmpeg, JS state machine). Goal: Illustrate/Inform. Viz/Presentation: Styled <pre><code> blocks. Interaction: Copy-to-clipboard button. Justification: Easy access and use of technical examples.
+        - Report Info: Key Recommendations, Best Practices. Goal: Highlight/Inform. Viz/Presentation: Styled lists, callout blocks. Interaction: None. Justification: Emphasize actionable advice.
+        - Report Info: Prioritized Implementation Path. Goal: Organize/Inform. Viz/Presentation: Numbered list styled as steps. Interaction: None. Justification: Clear sequential presentation.
+        - Library/Method: Vanilla JavaScript for navigation and interactions. Tailwind CSS for styling. No Chart.js as tables are more suitable for this report's content.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .nav-link.active {
+            background-color: #0284c7; /* sky-600 */
+            color: white;
+        }
+        .nav-link {
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .nav-link:hover {
+            background-color: #0369a1; /* sky-700 */
+            color: white;
+        }
+        .nav-group-title {
+            cursor: pointer;
+        }
+        .nav-subgroup {
+            display: none; /* Hidden by default */
+        }
+        .nav-subgroup.open {
+            display: block;
+        }
+        .code-block {
+            position: relative;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #374151; /* gray-700 */
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-button:hover {
+            background-color: #4b5563; /* gray-600 */
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #e5e7eb; /* gray-200 */
+            padding: 0.75rem;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+        th {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        h2 { margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.75rem; font-weight: 600; color: #1e3a8a; /* blue-800 */ border-bottom: 2px solid #3b82f6; /* blue-500 */ padding-bottom: 0.25rem;}
+        h3 { margin-top: 1.25rem; margin-bottom: 0.5rem; font-size: 1.375rem; font-weight: 600; color: #1d4ed8; /* blue-700 */}
+        h4 { margin-top: 1rem; margin-bottom: 0.25rem; font-size: 1.125rem; font-weight: 600; color: #2563eb; /* blue-600 */}
+        p, li { line-height: 1.6; color: #374151; /* gray-700 */ }
+        ul { list-style-type: disc; margin-left: 1.5rem; }
+        ol { list-style-type: decimal; margin-left: 1.5rem; }
+        .callout {
+            background-color: #eff6ff; /* blue-50 */
+            border-left: 4px solid #3b82f6; /* blue-500 */
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.25rem;
+        }
+         .key-recommendation-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .key-recommendation-list li::before {
+            content: '✔';
+            position: absolute;
+            left: 0;
+            color: #22c55e; /* green-500 */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 flex min-h-screen">
+
+    <aside class="w-1/4 max-w-xs bg-slate-800 text-slate-100 p-4 space-y-2 fixed top-0 left-0 h-full overflow-y-auto shadow-lg">
+        <h1 class="text-xl font-bold mb-6 text-sky-400 border-b border-sky-600 pb-2">Report Navigation</h1>
+        
+        <a href="#" class="nav-link block py-2 px-3 rounded-md" data-target="summary">I. Executive Summary</a>
+        
+        <div>
+            <div class="nav-group-title font-semibold py-2 px-3 rounded-md hover:bg-slate-700 flex justify-between items-center">
+                <span>II. Optimizing Animated Transitions</span>
+                <span class="arrow text-sky-400">▼</span>
+            </div>
+            <div class="nav-subgroup ml-4 space-y-1">
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="format-selection">A. Format Selection</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="webp-playback">B. WebP Playback</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="production-workflow">C. Production Workflow</a>
+            </div>
+        </div>
+
+        <div>
+            <div class="nav-group-title font-semibold py-2 px-3 rounded-md hover:bg-slate-700 flex justify-between items-center">
+                <span>III. JavaScript State Management</span>
+                <span class="arrow text-sky-400">▼</span>
+            </div>
+            <div class="nav-subgroup ml-4 space-y-1">
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="vanilla-js-state">A. Vanilla JS Patterns</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="url-routing">B. URL Routing</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="animation-coordination">C. Animation Coordination</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="memory-management-js">D. Memory Management (JS)</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="progressive-disclosure">E. Progressive Disclosure</a>
+            </div>
+        </div>
+
+        <div>
+            <div class="nav-group-title font-semibold py-2 px-3 rounded-md hover:bg-slate-700 flex justify-between items-center">
+                <span>IV. File Organization & Delivery</span>
+                <span class="arrow text-sky-400">▼</span>
+            </div>
+            <div class="nav-subgroup ml-4 space-y-1">
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="directory-structure">A. Directory Structure</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="naming-conventions">B. Naming Conventions</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="compression-techniques">C. Compression Techniques</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="loading-strategies">D. Loading Strategies</a>
+                <a href="#" class="nav-link block py-1.5 px-3 rounded-md text-sm" data-target="cache-management">E. Cache Management</a>
+            </div>
+        </div>
+        
+        <a href="#" class="nav-link block py-2 px-3 rounded-md" data-target="conclusion">V. Conclusion & Recommendations</a>
+    </aside>
+
+    <main class="ml-[25%] xl:ml-80 flex-1 p-6 sm:p-8 md:p-10 bg-stone-50 overflow-y-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-sky-800">Optimizing Interactive Scientific Communication: Advanced Techniques for WebP Animation, State Management, and Asset Organization</h1>
+            <p class="text-lg text-stone-600 mt-2">An interactive exploration of best practices for high-performance web platforms.</p>
+        </header>
+
+        <section id="summary" class="content-section active">
+            <h2>I. Executive Summary</h2>
+            <p class="mb-4">This application provides an interactive guide to the best practices for developing a high-performance, interactive web platform for scientific communication, focusing on animated sequences for state transitions. The content is derived from a comprehensive research report aimed at academic researchers who require smooth, professional-quality presentations.</p>
+            <p class="mb-4">Key insights cover strategic animation format selection (comparing WebP, WebM, and MP4), robust JavaScript state management using vanilla patterns and the History API, and meticulous asset organization including directory structures, naming conventions, and caching strategies. The platform emphasizes a hybrid approach for animation delivery, effective preloading, and aggressive memory management to ensure application responsiveness.</p>
+            <div class="callout">
+                <p><strong>Core Message:</strong> Successful implementation hinges on careful benchmarking of animation formats, incremental build-out of state management, and disciplined asset handling to achieve a scalable and maintainable platform for effective scientific communication.</p>
+            </div>
+        </section>
+
+        <section id="format-selection" class="content-section">
+            <h2>II. Optimizing Animated Transitions</h2>
+            <h3>A. Format Selection for High-Quality Animated Transitions (25fps, 1-second)</h3>
+            <p class="mb-4">The choice of animation format is foundational, impacting visual quality, file size, performance, and browser compatibility. This section explores the trade-offs between Animated WebP, WebM (VP9/AV1), and MP4 (H.264/HEVC) for short, alpha-transparent transitions crucial for professional scientific presentations.</p>
+            
+            <h4>1. Comparing Animated WebP, WebM (VP9/AV1), and MP4 (H.264/HEVC)</h4>
+            <ul class="list-disc pl-5 mb-4 space-y-2">
+                <li><strong>Visual Quality & Alpha Transparency:</strong> WebM (VP9/AV1) and lossless Animated WebP offer excellent alpha channel support. MP4/HEVC alpha is strong on Apple devices but limited elsewhere.</li>
+                <li><strong>File Size & Compression:</strong> WebM/AV1 generally offers the best compression, followed by WebM/VP9 and WebP. HEVC is also efficient.</li>
+                <li><strong>CPU Load & Decoding:</strong> Hardware-accelerated video formats (WebM/MP4) typically result in lower CPU usage during playback than software-decoded Animated WebP. WebP excels in seeking.</li>
+                <li><strong>Color Space & Chroma Subsampling:</strong> Advanced video codecs support higher bit depths and wider color gamuts (e.g., Display P3) more natively than WebP, though WebP can use ICC profiles.</li>
+            </ul>
+
+            <div class="table-container my-6 shadow-md rounded-lg">
+                <h4 class="p-4 bg-slate-200 text-slate-700 font-semibold rounded-t-lg">Table 1: Comparative Analysis of Animation Formats</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Animated WebP (Lossless)</th>
+                            <th>Animated WebP (Lossy)</th>
+                            <th>WebM (VP9 + Alpha)</th>
+                            <th>WebM (AV1 + Alpha)</th>
+                            <th>MP4 (HEVC + Alpha)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Alpha Support</strong></td><td>8-bit ARGB (Excellent)</td><td>8-bit Alpha (Good)</td><td>8-bit Alpha (Excellent)</td><td>8-bit Alpha (Excellent)</td><td>8-bit Alpha (Excellent on Apple)</td></tr>
+                        <tr><td><strong>Typical File Size</strong></td><td>Moderate</td><td>Low-Moderate</td><td>Low</td><td>Very Low</td><td>Low (Apple), Moderate</td></tr>
+                        <tr><td><strong>Visual Quality</strong></td><td>Excellent</td><td>Good-Very Good</td><td>Very Good-Excellent</td><td>Excellent</td><td>Very Good-Excellent (Apple)</td></tr>
+                        <tr><td><strong>CPU Load (Playback)</strong></td><td>Moderate-High (SW)</td><td>Moderate (SW)</td><td>Low-Moderate (HW)</td><td>Moderate (HW emerging)</td><td>Low (HW Apple)</td></tr>
+                        <tr><td><strong>CPU Load (Seeking)</strong></td><td>Good</td><td>Good</td><td>Good</td><td>Good</td><td>Good</td></tr>
+                        <tr><td><strong>Max Color Bit Depth</strong></td><td>8-bit</td><td>8-bit</td><td>Up to 12-bit</td><td>Up to 12-bit</td><td>Up to 12-bit</td></tr>
+                        <tr><td><strong>Wide Gamut (P3)</strong></td><td>Via ICC</td><td>Via ICC</td><td>Native</td><td>Native</td><td>Native</td></tr>
+                        <tr><td><strong>Key Browser Support</strong></td><td>Chrome, Edge, Firefox, Safari 16+</td><td>Chrome, Edge, Firefox, Safari 16+</td><td>Chrome, Edge, Firefox</td><td>Chrome, Edge, Firefox (growing)</td><td>Safari (macOS/iOS)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs text-gray-500 mb-4">Data compiled from sources [1, 2, 3, 4, 5, 6, 7, 8, 10] in the original report.</p>
+
+            <h4>2. Recommended Format Strategy</h4>
+             <p class="mb-2">A hybrid video-centric strategy is recommended for primary state transitions to achieve the highest professional quality with alpha transparency across modern browsers.</p>
+            <ul class="list-disc pl-5 mb-4 key-recommendation-list">
+                <li><strong>Primary (Chrome, Edge, Firefox):</strong> WebM with VP9+alpha. Consider WebM with AV1+alpha for better compression if resources allow.</li>
+                <li><strong>Primary (Safari macOS/iOS):</strong> MP4 with HEVC+alpha (using `hvc1` tag).</li>
+                <li><strong>Fallback:</strong> Animated WebP (lossless or high-quality lossy).</li>
+                <li><strong>Ultimate Fallback (very old browsers):</strong> Animated GIF (with quality limitations).</li>
+            </ul>
+            <p>This multi-format approach, implemented via the HTML <code>&lt;picture&gt;</code> element, ensures optimal quality and performance per user environment.</p>
+        </section>
+
+        <section id="webp-playback" class="content-section">
+            <h2>II. Optimizing Animated Transitions</h2>
+            <h3>B. Best Practices for Animated WebP Sequence Playback</h3>
+            <p class="mb-4">This section details best practices for using animated WebP, whether as a primary choice for certain UI elements or as a fallback for main transitions. The platform involves 5 states with 25-frame transitions (125+ frames).</p>
+
+            <h4>1. Frame Preloading Strategies</h4>
+            <ul class="list-disc pl-5 mb-4 space-y-2">
+                <li><strong>Initial Critical Preload:</strong> Use <code>&lt;link rel="preload" href="animation.webp" as="image" fetchpriority="high"&gt;</code> for the initial state's animation or the first common transition.</li>
+                <li><strong>Intelligent JavaScript-Driven Preloading:</strong>
+                    <ul class="list-circle pl-5 mt-1">
+                        <li>Preload only the initial/most probable transition's animation sequence on load.</li>
+                        <li>Predictively preload animations for likely next states in the background (e.g., using `new Image()` or `fetch`) once the app is interactive or on `mouseover` of navigation elements.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>2. Memory Management for WebP Sequences</h4>
+             <p class="mb-2">Managing decoded bitmap data (approx. 4MB for a 1000x1000 RGBA frame) is crucial.</p>
+            <ul class="list-disc pl-5 mb-4 space-y-2">
+                <li><strong>WebP Features:</strong>
+                    <ul class="list-circle pl-5 mt-1">
+                        <li><strong>Incremental Decoding:</strong> Browser displays frames as file downloads.</li>
+                        <li><strong>Key-frames:</strong> Improve seeking and can reduce data held in memory.</li>
+                        <li><strong>Dispose Method (Creation):</strong> Use `dispose=1` (Dispose to Background Color) for sequences where each frame replaces the previous, helping browsers free memory.</li>
+                        <li><strong>Blend Method (Creation):</strong> Use `+b` (alpha blending) for transparency.</li>
+                    </ul>
+                </li>
+                <li><strong>Managing Decoded Frames:</strong>
+                    <ul class="list-circle pl-5 mt-1">
+                        <li>If using a single animated WebP in `<img>`, browser handles frame memory. Optimize the WebP file itself.</li>
+                        <li>If using individual frames via JS (e.g., on canvas), explicitly release `Image` object references when done.</li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h4>3. Browser Compatibility and Fallbacks</h4>
+            <p class="mb-2">Animated WebP is widely supported (Chrome 32+, Edge 18+, Firefox 65+, Safari 14+/16.0+).</p>
+            <p class="mb-2">Use the <code>&lt;picture&gt;</code> element for robust fallbacks:</p>
+            <div class="code-block bg-gray-800 text-gray-200 p-4 rounded-md my-4">
+                <button class="copy-button">Copy</button>
+                <pre><code>&lt;picture&gt;
+  &lt;!-- Prioritize video formats for transitions --&gt;
+  &lt;source type="video/mp4" srcset="transition.mp4" /&gt; &lt;!-- For Safari --&gt;
+  &lt;source type="video/webm" srcset="transition.webm" /&gt; &lt;!-- For Chrome, Firefox, Edge --&gt;
+  
+  &lt;!-- Fallback to animated WebP --&gt;
+  &lt;source srcset="animation.webp" type="image/webp"&gt;
+  
+  &lt;!-- Ultimate fallback to GIF --&gt;
+  &lt;source srcset="animation.gif" type="image/gif"&gt;
+  &lt;img src="animation.gif" alt="State Transition Animation"&gt;
+&lt;/picture&gt;</code></pre>
+            </div>
+            <p class="mb-4">This advanced fallback structure ensures the best format is delivered based on browser support, prioritizing video for transitions.</p>
+
+            <div class="table-container my-6 shadow-md rounded-lg">
+                 <h4 class="p-4 bg-slate-200 text-slate-700 font-semibold rounded-t-lg">Table 2: Animated WebP Feature Support Matrix (Major Browsers, circa 2025)</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Chrome (Desktop/Mobile)</th>
+                            <th>Firefox (Desktop/Mobile)</th>
+                            <th>Safari (Desktop/Mobile)</th>
+                            <th>Edge (Desktop/Mobile)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Animated WebP Playback</td><td>Supported (32+)</td><td>Supported (65+)</td><td>Supported (Desktop 16+, iOS 14+)</td><td>Supported (18+)</td></tr>
+                        <tr><td>Alpha in Animated WebP</td><td>Supported</td><td>Supported</td><td>Supported</td><td>Supported</td></tr>
+                        <tr><td>ICC Profile Support (WebP)</td><td>Supported</td><td>Supported</td><td>Supported</td><td>Supported</td></tr>
+                        <tr><td>Wide Gamut (Display P3 via ICC)</td><td>Supported</td><td>Supported</td><td>Supported</td><td>Supported</td></tr>
+                    </tbody>
+                </table>
+            </div>
+             <p class="text-xs text-gray-500 mb-4">Support based on data from [1, 2, 8, 13, 14, 18] in the original report.</p>
+
+            <h4>4. Performance Optimization for Mobile Devices</h4>
+            <ul class="list-disc pl-5 mb-4 key-recommendation-list">
+                <li>Use WebP's compression to reduce file sizes for mobile.</li>
+                <li>Be mindful of WebP's CPU-intensive decoding on less powerful mobiles. Consider lossy WebP or ensure video fallbacks leverage hardware decoding.</li>
+                <li>Use responsive asset delivery via <code>&lt;picture&gt;</code> with the `media` attribute to serve smaller/optimized animations for mobile.</li>
+                <li>Respect <code>(prefers-reduced-motion: reduce)</code> by serving static images or minimal animations.</li>
+            </ul>
+        </section>
+
+        <section id="production-workflow" class="content-section">
+            <h2>II. Optimizing Animated Transitions</h2>
+            <h3>C. Production Workflow for Animated Assets</h3>
+            <p class="mb-4">A well-defined production workflow is essential for creating and optimizing animation formats.</p>
+
+            <h4>1. Tools for Creating Animated WebP</h4>
+            <ul class="list-disc pl-5 mb-4 space-y-2">
+                <li><strong>Google's `webpmux` (CLI):</strong> For assembling individual WebP frames, controlling loop count, background, frame duration, dispose method (`+1` for dispose to background), and blend method (`+b` for alpha).
+                    <div class="code-block bg-gray-800 text-gray-200 p-4 rounded-md my-2">
+                        <button class="copy-button">Copy</button>
+                        <pre><code>webpmux -frame frame001.webp +40+0+0+1+b \
+        -frame frame002.webp +40+0+0+1+b \
+        ... \
+        -frame frame025.webp +40+0+0+1+b \
+        -loop 1 -bgcolor 0,0,0,0 -o animation.webp</code></pre>
+                    </div>
+                </li>
+                <li><strong>Google's `cwebp` (CLI):</strong> Converts source images (e.g., PNGs) to WebP frames (lossless/lossy).</li>
+                <li><strong>ImageMagick, Pillow (Python):</strong> For conversion and scripting.</li>
+                <li><strong>GUI Tools (Photoshop with WebP plugin):</strong> Direct export options.</li>
+            </ul>
+
+            <h4>2. FFmpeg Settings for Optimal WebM/MP4 (Short Loops with Alpha)</h4>
+            <p class="mb-2">FFmpeg is crucial for producing WebM (VP9/AV1) and MP4 (HEVC) with alpha.</p>
+            <ul class="list-disc pl-5 mb-4 space-y-2">
+                <li><strong>WebM (VP9 + Alpha):</strong>
+                    <ul class="list-circle pl-5 mt-1">
+                        <li>Codec: `-c:v libvpx-vp9`</li>
+                        <li>Alpha: `-pix_fmt yuva420p`</li>
+                        <li>Quality: Constant Quality (CRF) mode, e.g., `-crf 18 -b:v 0`</li>
+                        <li>Speed/Deadline: `-speed 1` (good balance for short animations)</li>
+                        <li>Example:
+                            <div class="code-block bg-gray-800 text-gray-200 p-4 rounded-md my-2">
+                                <button class="copy-button">Copy</button>
+                                <pre><code>ffmpeg -framerate 25 -i input_frame_%04d.png \
+       -c:v libvpx-vp9 -pix_fmt yuva420p \
+       -crf 18 -b:v 0 -speed 1 -an -t 1 -g 25 \
+       output.webm</code></pre>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>WebM (AV1 + Alpha):</strong>
+                     <ul class="list-circle pl-5 mt-1">
+                        <li>Codec: `-c:v libaom-av1`</li>
+                        <li>Quality: `-crf 20 -b:v 0`, `-cpu-used 2` (slower, better quality)</li>
+                        <li>Example:
+                            <div class="code-block bg-gray-800 text-gray-200 p-4 rounded-md my-2">
+                                <button class="copy-button">Copy</button>
+                                <pre><code>ffmpeg -framerate 25 -i input_frame_%04d.png \
+       -c:v libaom-av1 -pix_fmt yuva420p \
+       -crf 20 -b:v 0 -cpu-used 2 -an -t 1 -g 25 -row-mt 1 \
+       output_av1.webm</code></pre>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>MP4 (HEVC + Alpha for Safari):</strong>
+                    <ul class="list-circle pl-5 mt-1">
+                        <li>Codec (macOS hardware): `-c:v hevc_videotoolbox`</li>
+                        <li>Tag: `-tag:v hvc1`</li>
+                        <li>Alpha: `-allow_sw 1`, `-pix_fmt yuva420p`, `-alpha_quality 0.75`</li>
+                        <li>Quality: `-q:v 80` (example for videotoolbox)</li>
+                        <li>Example:
+                            <div class="code-block bg-gray-800 text-gray-200 p-4 rounded-md my-2">
+                                <button class="copy-button">Copy</button>
+                                <pre><code>ffmpeg -framerate 25 -i input_frame_%04d.png \
+       -c:v hevc_videotoolbox -allow_sw 1 -tag:v hvc1 \
+       -pix_fmt yuva420p -alpha_quality 0.75 -q:v 80 \
+       -an -t 1 -g 25 output_hevc.mp4</code></pre>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="callout">
+                <p><strong>Important:</strong> Scripting FFmpeg commands is essential for consistency. Thoroughly test outputs on all target browsers and devices.</p>
+            </div>
+        </section>
+        
+        <section id="vanilla-js-state" class="content-section">
+            <h2>III. Implementing Robust JavaScript State Management</h2>
+            <h3>A. Vanilla JavaScript State Management Patterns</h3>
+            <p class="mb-4">A vanilla JavaScript state machine is preferred for managing the five interactive states and transitions, avoiding framework overhead. This section outlines core components and a basic implementation approach.</p>
+            
+            <h4>Core Components of a State Machine Definition:</h4>
+            <ul class="list-disc pl-5 mb-4 space-y-2">
+                <li><code>initialState</code>: The starting state of the application.</li>
+                <li><code>states</code>: An object where each key is a state name (e.g., <code>State1</code>). Each state object contains:
+                    <ul class="list-circle pl-5 mt-1">
+                        <li><code>onEnter</code>: Function executed upon entering the state (UI setup, asset preloading).</li>
+                        <li><code>onExit</code>: Function executed upon exiting the state (cleanup, stopping animations, releasing memory).</li>
+                        <li><code>transitions</code>: Object mapping event names (e.g., <code>USER_CLICKED_NEXT</code>) to transition definitions. Each transition specifies:
+                            <ul class="list-square pl-5 mt-1">
+                                <li><code>target</code>: The name of the state to transition to.</li>
+                                <li><code>action</code> (optional): Function executed during this specific transition (e.g., play animation).</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h4>Basic <code>createMachine</code> Implementation Example:</h4>
+            <p class="mb-2">A function to instantiate and manage state machine logic.</p>
+            <div class="code-block bg-gray-800 text-gray-200 p-4 rounded-md my-4">
+                <button class="copy-button">Copy</button>
+                <pre><code>function createMachine(stateMachineDefinition) {
+  const machine = {
+    value: stateMachineDefinition.initialState,
+    transition(currentState, event) {
+      const currentStateDef = stateMachineDefinition.states[currentState];
+      if (!currentStateDef || !currentStateDef.transitions) return;
+      
+      const destinationTransition = currentStateDef.transitions[event];
+      if (!destinationTransition) return;
+
+      const destinationState = destinationTransition.target;
+      const destinationStateDef = stateMachineDefinition.states[destinationState];
+
+      // Execute actions: transition, exit current, enter new
+      if (destinationTransition.action) {
+        destinationTransition.action();
+      }
+      if (currentStateDef.onExit) {
+        currentStateDef.onExit();
+      }
+      if (destinationStateDef && destinationStateDef.onEnter) {
+        destinationStateDef.onEnter();
+      }
+
+      machine.value = destinationState;
+      // Update UI or trigger further actions based on new state
+      console.log(`Transitioned to: ${machine.value}`);
+      return machine.value;
+    }
+  };
+
+  // Initialize by "entering" the initial state
+  const initialDef = stateMachineDefinition.states[machine.value];
+  if (initialDef && initialDef.onEnter) {
+    initialDef.onEnter();
+  }
+  console.log(`Initial state: ${machine.value}`);
+  return machine;
+}
+
+// Example Usage (Conceptual)
+// const myAppFSM = createMachine({ initialState: 'State1', states: { /* ... state definitions ... */ } });
+// myAppFSM.transition('State1', 'USER_ACTION');
+</code></pre>
+            </div>
+            <div class="callout">
+                <p><strong>Scalability Tip:</strong> For clarity, functions within <code>onEnter</code>, <code>onExit</code>, and <code>action</code> should delegate complex tasks (DOM manipulation, animation control) to separate modules or helper functions, keeping the state machine definition focused on logic and transitions.</p>
+            </div>
+        </section>
+
+        <section id="url-routing" class="content-section">
+            <h2>III. Implementing Robust JavaScript State Management</h2>
+            <h3>B. URL Routing for Bookmarkable and Shareable States</h3>
+            <p class="mb-4">To make each state bookmarkable and shareable, the application's URL must reflect the current state. The HTML5 History API is used for this in a SPA context.</p>
+
+            <ul class="list-disc pl-5 mb-4 space-y-3">
+                <li>
+                    <strong><code>history.pushState(stateObject, title, url)</code>:</strong>
+                    <p class="ml-1">Updates the URL and adds a new entry to session history when transitioning to a new state. Example: <code>history.pushState({ appState: 'State2' }, 'State 2', '/platform/state2');</code></p>
+                </li>
+                <li>
+                    <strong><code>history.replaceState(stateObject, title, url)</code>:</strong>
+                    <p class="ml-1">Updates the URL/state of the current history entry. Useful for the initial page load state.</p>
+                </li>
+                <li>
+                    <strong><code>window.addEventListener('popstate', handler)</code>:</strong>
+                    <p class="ml-1">Fires on browser back/forward navigation. The handler uses <code>event.state</code> to drive the JS state machine to the correct state, synchronizing the app with the URL. It should <em>not</em> call <code>pushState</code>.</p>
+                    <div class="code-block bg-gray-800 text-gray-200 p-4 rounded-md my-2">
+                        <button class="copy-button">Copy</button>
+                        <pre><code>window.addEventListener('popstate', (event) => {
+  if (event.state && event.state.appState) {
+    // Assuming 'myStateMachine' is your state machine instance
+    // and 'currentAppMachineState' holds its current value
+    myStateMachine.transition(currentAppMachineState, \`GO_TO_\${event.state.appState.toUpperCase()}\`);
+  } else if (document.location.pathname === '/platform/initialStateUrl') { 
+    // Handle case for initial state if no event.state (e.g. direct navigation to root)
+    myStateMachine.transition(currentAppMachineState, 'GO_TO_INITIAL_STATE');
+  }
+});</code></pre>
+                    </div>
+                </li>
+                <li>
+                    <strong>Initial Load Synchronization:</strong>
+                    <p class="ml-1">On startup, parse <code>document.location.pathname</code> to initialize the application in the correct state if a user navigates directly to a specific state's URL (e.g., <code>/platform/state3</code>).</p>
+                </li>
+            </ul>
+            <p>Correctly managing <code>popstate</code> and synchronizing the URL with the internal state machine is crucial for a seamless SPA navigation experience.</p>
+        </section>
+
+        <section id="animation-coordination" class="content-section">
+            <h2>III. Implementing Robust JavaScript State Management</h2>
+            <h3>C. Animation Coordination Between State Transitions</h3>
+            <p class="mb-4">Smooth transitions depend on precise coordination between state changes and animation playback.</p>
+
+            <ul class="list-disc pl-5 mb-4 space-y-3">
+                <li>
+                    <strong>Initiating Animations:</strong>
+                    <p class="ml-1">The state machine's <code>transition.action</code> or the target state's <code>onEnter</code> handler is the ideal place to start playing the animation sequence for the transition.</p>
+                </li>
+                <li>
+                    <strong>JavaScript Animation Control:</strong>
+                    <ul class="list-circle pl-5 mt-1 space-y-1">
+                        <li><strong>HTML5 <code>&lt;video&gt;</code> Elements:</strong> Use <code>video.play()</code>, <code>video.pause()</code>, etc. from the HTMLMediaElement API.</li>
+                        <li><strong>Animated WebP in <code>&lt;img&gt;</code>:</strong> Changing <code>img.src</code> typically starts playback. Fine-grained control might require drawing frames to a <code>&lt;canvas&gt;</code>.</li>
+                        <li><strong>Web Animations API (WAAPI):</strong> <code>Element.animate()</code> offers powerful JS-driven animation control with an <code>Animation</code> object for playback management.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Handling Animation Completion:</strong>
+                    <p class="ml-1">Essential for knowing when a transition animation has finished.</p>
+                    <ul class="list-circle pl-5 mt-1 space-y-1">
+                        <li>For <code>&lt;video&gt;</code>: Listen for the <code>ended</code> event.</li>
+                        <li>For WAAPI: Use the <code>Animation</code> object's <code>finished</code> promise or <code>onfinish</code> event.</li>
+                        <li>Completion should trigger a new event for the state machine (e.g., <code>ANIMATION_ENDED</code>) to transition to a stable sub-state or enable further UI interactions.</li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="callout">
+                <p><strong>Typical Flow:</strong> User interaction → state machine event → transition's <code>action</code> (starts animation, updates URL via <code>pushState</code>) → animation completion event → another state machine event → transition to new stable state.</p>
+            </div>
+        </section>
+
+        <section id="memory-management-js" class="content-section">
+            <h2>III. Implementing Robust JavaScript State Management</h2>
+            <h3>D. Memory Management for Multiple Animation Sequences in JavaScript</h3>
+            <p class="mb-4">With multiple states and animations (125+ transition frames), proactive memory management is paramount to prevent performance issues and crashes, especially on mobile.</p>
+
+            <ul class="list-disc pl-5 mb-4 key-recommendation-list">
+                <li><strong>Strategic Loading/Unloading:</strong> Only keep assets for the current state and predictable next transitions in memory. The <code>onExit</code> handler of a state is critical for releasing resources.</li>
+                <li><strong>Explicit Resource Release for <code>&lt;video&gt;</code> Elements:</strong>
+                    <ol class="list-decimal pl-5 mt-1 space-y-1">
+                        <li>Pause playback: <code>video.pause();</code></li>
+                        <li>Remove sources: <code>video.removeAttribute('src'); while (video.firstChild) { video.removeChild(video.firstChild); }</code></li>
+                        <li>Invoke <code>video.load();</code> to reset the media element and help release resources.</li>
+                        <li>If element no longer needed, remove from DOM: <code>videoElement.remove();</code></li>
+                        <li>Nullify JS references to allow garbage collection.</li>
+                    </ol>
+                </li>
+                <li><strong>Explicit Resource Release for <code>&lt;img&gt;</code> Elements (Animated WebP):</strong>
+                    <ol class="list-decimal pl-5 mt-1 space-y-1">
+                        <li>If element is state-specific, remove from DOM: <code>imgElement.remove();</code></li>
+                        <li>Nullify JS variables holding references to the <code>Image</code> object or its <code>src</code> data. Changing <code>img.src = '';</code> or <code>'#'</code> can help.</li>
+                    </ol>
+                </li>
+                <li><strong>JavaScript Garbage Collection (GC) Awareness:</strong> Avoid long-lived references to large objects (decoded image/video data, detached DOM elements). Use <code>WeakMap</code> or <code>WeakSet</code> for associating data with DOM elements without preventing GC.</li>
+            </ul>
+            <div class="callout">
+                <p><strong>Key Principle:</strong> Proactive cleanup in <code>onExit</code> handlers is more reliable than relying solely on automatic GC for large multimedia assets.</p>
+            </div>
+        </section>
+
+        <section id="progressive-disclosure" class="content-section">
+            <h2>III. Implementing Robust JavaScript State Management</h2>
+            <h3>E. Best Practices for Progressive Disclosure in Academic User Interfaces</h3>
+            <p class="mb-4">Progressive disclosure defers advanced or rarely used features to secondary screens, making applications easier to learn and less cluttered. This is beneficial for academic research platforms.</p>
+
+            <ul class="list-disc pl-5 mb-4 key-recommendation-list">
+                <li><strong>Identify Core vs. Advanced Functionality:</strong> Use user research (task analysis, interviews) to distinguish essential tools from specialized options.</li>
+                <li><strong>Clear Affordances for Disclosure:</strong> Use unambiguous visual cues (e.g., "Advanced Settings" buttons, "More Details" links, "+" or chevron icons).</li>
+                <li><strong>Smooth and Contextual Revelation:</strong> Transitions to revealed sections should be smooth (gentle slide/fade) and maintain context.</li>
+                <li><strong>Logical Grouping and Limited Layers:</strong> Group related advanced options logically. Avoid excessive nesting (often one secondary level is enough).</li>
+                <li><strong>State Machine Integration:</strong> Manage visibility of disclosed sections via the JS state machine (sub-states or flags in a state's data model).</li>
+                <li><strong>Guidance for Users:</strong> Make advanced features discoverable. Consider brief onboarding or contextual help (tooltips) for significant hidden features.</li>
+            </ul>
+            <p>For an academic audience, progressive disclosure should reduce initial cognitive load, allowing focus on primary tasks while keeping advanced capabilities accessible.</p>
+        </section>
+
+        <section id="directory-structure" class="content-section">
+            <h2>IV. Optimal File Organization and Delivery for Web Animation Assets</h2>
+            <h3>A. Directory Structure for Frame Sequences and Animation Assets</h3>
+            <p class="mb-4">A clear, hierarchical directory structure simplifies asset management and programmatic access, ideally reflecting the application's state logic.</p>
+
+            <h4>Organization by State and Transition:</h4>
+            <ul class="list-disc pl-5 mb-2">
+                <li>Top-level directory: e.g., <code>/assets/media/transitions/</code></li>
+                <li>Subdirectories per transition: e.g., <code>state1-to-state2/</code>, <code>state2-to-state3/</code></li>
+                <li>Inside, compiled animation files (WebM, MP4, WebP, GIF) reside.</li>
+            </ul>
+            <p class="mb-2">Example structure (using compiled video files primarily):</p>
+            <div class="code-block bg-gray-800 text-gray-200 p-4 rounded-md my-4">
+                <button class="copy-button">Copy</button>
+                <pre><code>/assets/
+  /media/
+    /transitions/
+      /state1-to-state2/
+        state1-to-state2.webm
+        state1-to-state2.mp4  // Safari HEVC+alpha variant
+        state1-to-state2.webp // Animated WebP fallback
+        state1-to-state2.gif  // Final GIF fallback
+      /state2-to-state3/
+        state2-to-state3.webm
+        state2-to-state3.mp4
+        state2-to-state3.webp
+        state2-to-state3.gif
+      ...
+    /idle-animations/  // Optional, for animations within a state
+      /state1/
+        idle.webp
+      ...</code></pre>
+            </div>
+            <ul class="list-disc pl-5 mb-4 space-y-2">
+                <li><strong>Scalability & Clarity:</strong> This structure is manageable for 5 states and their transitions.</li>
+                <li><strong>Versioning:</strong> Consider version numbers in directories (<code>/v2/state1-to-state2/</code>) or filenames for cache busting.</li>
+            </ul>
+            <p>This organization allows JavaScript to dynamically construct asset paths based on application state.</p>
+        </section>
+
+        <section id="naming-conventions" class="content-section">
+            <h2>IV. Optimal File Organization and Delivery for Web Animation Assets</h2>
+            <h3>B. Naming Conventions for Programmatic Asset Loading</h3>
+            <p class="mb-4">Consistent and descriptive naming conventions are vital for programmatic loading and human readability.</p>
+
+            <h4>Recommended Pattern:</h4>
+            <p class="mb-2"><code>[projectPrefix_][stateOrTransitionContext_][specificIdentifier_][variant_][resolution_][formatDetails].[extension]</code></p>
+            <ul class="list-disc pl-5 mb-4 space-y-1">
+                <li><code>projectPrefix_</code> (optional): e.g., <code>scicomm_</code></li>
+                <li><code>stateOrTransitionContext_</code>: e.g., <code>transition_state1-to-state2_</code> or <code>idle_state3_</code></li>
+                <li><code>specificIdentifier_</code> (if multiple animations for context): e.g., <code>main_</code></li>
+                <li><code>variant_</code> (optional): e.g., <code>alpha_</code>, <code>darkmode_</code></li>
+                <li><code>resolution_</code> (optional, for responsive assets): e.g., <code>1920w_</code>, <code>mobile_</code></li>
+                <li><code>formatDetails</code> (optional): e.g. <code>vp9alpha</code>, <code>hevcAlpha</code></li>
+            </ul>
+            <p class="mb-1"><strong>Examples:</strong></p>
+            <ul class="list-disc pl-5 mb-4 space-y-1">
+                <li>Video: <code>scicomm_transition_state1-to-state2_main_vp9alpha.webm</code></li>
+                <li>WebP Fallback: <code>scicomm_transition_state1-to-state2_main.webp</code></li>
+                <li>Individual Frame (if used): <code>scicomm_transition_state1-to-state2_main_0001.webp</code> (use leading zeros)</li>
+            </ul>
+            
+            <ul class="list-disc pl-5 mb-4 key-recommendation-list">
+                <li><strong>Character Set:</strong> Use lowercase alphanumeric, hyphens (<code>-</code>) for word separation. Avoid spaces/special characters.</li>
+                <li><strong>Self-Documentation:</strong> Names should clearly indicate purpose and context.</li>
+            </ul>
+            <p>These conventions enable reliable construction of asset URLs in JavaScript.</p>
+        </section>
+
+        <section id="compression-techniques" class="content-section">
+            <h2>IV. Optimal File Organization and Delivery for Web Animation Assets</h2>
+            <h3>C. Compression Techniques for WebP Sequences</h3>
+            <p class="mb-4">Optimizing WebP files involves balancing visual quality with file size for performance.</p>
+
+            <ul class="list-disc pl-5 mb-4 space-y-3">
+                <li>
+                    <strong>Lossy vs. Lossless Compression:</strong>
+                    <ul class="list-circle pl-5 mt-1 space-y-1">
+                        <li><strong>Lossless WebP:</strong> (<code>cwebp -lossless 1...</code>) Ideal for sharp lines, text, diagrams needing perfect fidelity.</li>
+                        <li><strong>Lossy WebP:</strong> (<code>cwebp -q &lt;quality_level&gt;...</code>, e.g., 75-95) For photographic content where some imperceptible loss is acceptable for size savings. <code>-size</code> option targets specific file size.</li>
+                        <li><strong>Mixed Frames:</strong> Animated WebP allows combining lossy and lossless frames in one animation for targeted optimization.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Quality Settings:</strong> Experimentation is key. 75-85 is a good starting point for lossy. Higher for "professional quality," but weigh against file size.
+                </li>
+                <li>
+                    <strong>Metadata:</strong> Include EXIF/XMP if needed (copyright, etc.) using <code>webpmux</code>.
+                </li>
+                <li>
+                    <strong>Advanced <code>cwebp</code> options:</strong> Explore <code>-m</code> (compression method), <code>-af</code> (auto-filter), pre-processing for further optimization.
+                </li>
+            </ul>
+            <div class="callout">
+                <p><strong>Recommendation:</strong> For academic audiences, use a nuanced approach. Identify frames tolerant of lossy compression, apply judiciously, and preserve lossless for critical elements. This can be automated in an asset build pipeline.</p>
+            </div>
+        </section>
+
+        <section id="loading-strategies" class="content-section">
+            <h2>IV. Optimal File Organization and Delivery for Web Animation Assets</h2>
+            <h3>D. Progressive and Incremental Loading Strategies</h3>
+            <p class="mb-4">Ensuring animations start quickly and play smoothly is paramount.</p>
+
+            <ul class="list-disc pl-5 mb-4 space-y-3">
+                <li>
+                    <strong>WebP Incremental Decoding:</strong>
+                    <p class="ml-1">Animated WebP allows browsers to render frames as the file downloads, improving perceived load time, especially on slower connections.</p>
+                </li>
+                <li>
+                    <strong>JavaScript-Driven Sequential Loading (for individual image frame sequences, if used):</strong>
+                    <ol class="list-decimal pl-5 mt-1 space-y-1">
+                        <li>Load initial few frames (e.g., 3-5) to start animation.</li>
+                        <li>Use JavaScript (<code>new Image()</code>) to load subsequent frames in the background.</li>
+                        <li>Maintain a small buffer of ready-to-display frames.</li>
+                    </ol>
+                </li>
+                <li>
+                    <strong>Video Streaming:</strong>
+                    <p class="ml-1">If using WebM/MP4, browsers handle streaming and buffering natively. Ensure servers support HTTP range requests for efficient seeking/streaming.</p>
+                </li>
+            </ul>
+            <p>For 1-second, 25fps transitions, the goal is rapid availability. Incremental display/streaming helps, but overall file size remains key.</p>
+        </section>
+
+        <section id="cache-management" class="content-section">
+            <h2>IV. Optimal File Organization and Delivery for Web Animation Assets</h2>
+            <h3>E. Cache Management for Large Asset Collections</h3>
+            <p class="mb-4">Effective caching is vital for performance on repeat visits and reducing server load, especially with many animation assets.</p>
+
+            <ul class="list-disc pl-5 mb-4 space-y-3">
+                <li>
+                    <strong>HTTP Caching:</strong>
+                    <ul class="list-circle pl-5 mt-1 space-y-1">
+                        <li><strong><code>Cache-Control</code> Header:</strong> For infrequently changing assets (or versioned filenames), use long cache durations: <code>Cache-Control: max-age=31536000, immutable</code>. The <code>immutable</code> directive is best with version-hashed filenames.</li>
+                        <li><strong>ETags and <code>Last-Modified</code>:</strong> If filenames aren't versioned, use ETags for validation. Server can respond <code>304 Not Modified</code>.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Client-Side Storage (Service Workers & IndexedDB):</strong>
+                    <ul class="list-circle pl-5 mt-1 space-y-1">
+                        <li><strong>Limitations of HTTP Cache:</strong> Size limits, browser eviction algorithms.</li>
+                        <li><strong>Enhanced Caching for Frequent Use:</strong>
+                            <ul class="list-square pl-5 mt-1">
+                                <li><strong>IndexedDB:</strong> Store large binary data (animation files) with more control and capacity.</li>
+                                <li><strong>Service Workers:</strong> Act as a programmable network proxy. Intercept requests, serve from IndexedDB cache (cache-first). If not cached, fetch from network, serve, and store in IndexedDB.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Preloading and Cache Priming:</strong>
+                    <p class="ml-1">After initial load, a Service Worker can proactively fetch and cache other important animation assets (e.g., for adjacent states) during idle time.</p>
+                </li>
+            </ul>
+            <div class="callout">
+                <p><strong>Strategy:</strong> A robust approach combines versioned URLs with long <code>max-age</code> HTTP caching and a Service Worker managing an IndexedDB cache for animation assets, enhancing speed and reliability.</p>
+            </div>
+        </section>
+
+        <section id="conclusion" class="content-section">
+            <h2>V. Conclusion and Key Recommendations</h2>
+            <p class="mb-4">Developing an interactive scientific communication platform with smooth, professional-quality animated transitions requires a multifaceted approach. This interactive report has summarized key strategies for format selection, state management, and asset handling to meet the high expectations of an academic audience.</p>
+
+            <h4>Key Synthesized Recommendations:</h4>
+            <ol class="list-decimal pl-5 mb-4 space-y-3 key-recommendation-list">
+                <li>
+                    <strong>Prioritize Video Formats for Core Transitions:</strong> Use WebM (VP9/AV1 + alpha) for most browsers and MP4 (HEVC + alpha with <code>hvc1</code>) for Safari. Implement via HTML <code>&lt;picture&gt;</code> element with Animated WebP and GIF as fallbacks.
+                </li>
+                <li>
+                    <strong>Implement Intelligent Preloading and Aggressive Memory Management:</strong> Preload critical initial animations. Use JS for predictive preloading. Proactively release memory in state machine <code>onExit</code> handlers (pause video, remove sources, call <code>load()</code>, remove DOM elements, nullify JS refs).
+                </li>
+                <li>
+                    <strong>Utilize a Vanilla JavaScript State Machine with History API:</strong> Manage application states, transitions, and actions. Integrate HTML5 History API (<code>pushState</code>, <code>popstate</code>) for bookmarkable and shareable URLs.
+                </li>
+                <li>
+                    <strong>Establish Rigorous File Organization and Naming Conventions:</strong> Use clear directory structures (e.g., <code>/assets/media/transitions/state1-to-state2/</code>) and descriptive, consistent naming conventions for programmatic loading and maintainability.
+                </li>
+                <li>
+                    <strong>Employ Robust and Multi-Layered Caching Strategies:</strong> Use versioned filenames with long <code>max-age</code> HTTP <code>Cache-Control</code> and <code>immutable</code>. Consider a Service Worker with IndexedDB for persistent caching of frequently accessed animation assets.
+                </li>
+            </ol>
+
+            <h4>Prioritized Implementation Path:</h4>
+            <ol class="list-decimal pl-5 mb-4 space-y-2">
+                <li><strong>Benchmark Animation Formats:</strong> Prototype a representative transition with WebP, WebM (VP9+alpha), MP4 (HEVC+alpha). Benchmark size, quality, performance on target devices.</li>
+                <li><strong>Develop Core State Machine and Routing:</strong> Implement vanilla JS state machine and History API integration. Ensure basic state transitions and URL updates work.</li>
+                <li><strong>Integrate and Optimize a Single Animated Transition:</strong> Fully integrate one animation (chosen format + fallbacks) into the state machine, including preloading, playback, and memory release. Profile memory.</li>
+                <li><strong>Scale and Refine:</strong> Replicate for remaining states. Continuously test performance, memory, cross-browser compatibility. Implement progressive disclosure as needed.</li>
+                <li><strong>Optimize Asset Pipeline and Caching:</strong> Streamline animation production (e.g., FFmpeg scripts). Implement full caching strategy.</li>
+            </ol>
+            <div class="callout">
+                 <p>By following these recommendations, the interactive web platform can deliver the smooth, professional, and high-performance experience required for effective scientific communication.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            const navGroupTitles = document.querySelectorAll('.nav-group-title');
+            const copyButtons = document.querySelectorAll('.copy-button');
+
+            function showSection(targetId) {
+                contentSections.forEach(section => {
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+                navLinks.forEach(link => {
+                    if (link.dataset.target === targetId) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+                // Scroll to top of main content area
+                document.querySelector('main').scrollTop = 0;
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const targetId = link.dataset.target;
+                    showSection(targetId);
+                    // Update URL hash
+                    history.pushState({ section: targetId }, '', `#${targetId}`);
+                });
+            });
+
+            navGroupTitles.forEach(title => {
+                title.addEventListener('click', () => {
+                    const subgroup = title.nextElementSibling;
+                    const arrow = title.querySelector('.arrow');
+                    subgroup.classList.toggle('open');
+                    if (subgroup.classList.contains('open')) {
+                        arrow.textContent = '▲';
+                    } else {
+                        arrow.textContent = '▼';
+                    }
+                });
+            });
+            
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const codeBlock = button.nextElementSibling;
+                    const code = codeBlock.innerText;
+                    
+                    const textarea = document.createElement('textarea');
+                    textarea.value = code;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy text: ', err);
+                        button.textContent = 'Error';
+                         setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    }
+                    document.body.removeChild(textarea);
+                });
+            });
+
+            // Handle URL hash on initial load and popstate
+            function handleHashChange() {
+                const hash = window.location.hash.substring(1);
+                if (hash) {
+                    const targetSection = document.getElementById(hash);
+                    if (targetSection && targetSection.classList.contains('content-section')) {
+                        showSection(hash);
+                        // Open parent nav group if sub-item is targeted
+                        const activeLink = document.querySelector(`.nav-link[data-target="${hash}"]`);
+                        if (activeLink && activeLink.closest('.nav-subgroup')) {
+                            const subGroup = activeLink.closest('.nav-subgroup');
+                            if (!subGroup.classList.contains('open')) {
+                                subGroup.classList.add('open');
+                                subGroup.previousElementSibling.querySelector('.arrow').textContent = '▲';
+                            }
+                        }
+                    } else {
+                        showSection('summary'); // Default to summary if hash is invalid
+                    }
+                } else {
+                    showSection('summary'); // Default to summary if no hash
+                }
+            }
+
+            window.addEventListener('popstate', (event) => {
+                if (event.state && event.state.section) {
+                    showSection(event.state.section);
+                } else {
+                    handleHashChange(); // Fallback to hash if no state object
+                }
+            });
+
+            // Initial load handling
+            handleHashChange();
+        });
+    </script>
+</body>
+</html>

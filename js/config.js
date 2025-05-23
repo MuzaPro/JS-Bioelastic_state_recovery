@@ -1,39 +1,60 @@
-// Global configuration for the Bioelastic State Recovery Interactive Platform
+// Global configuration for Bioelastic State Recovery Platform
 const CONFIG = {
     // Project info
     PROJECT_NAME: 'Bioelastic State Recovery',
     VERSION: '1.0.0',
     
+    // States definition
+    STATES: {
+        1: { 
+            name: 'transducer-on-hand', 
+            title: 'Breakthrough Haptic Technology',
+            content: 'Revolutionary bistable transducer that stores energy in compressed skin, requiring power only during state transitions.'
+        },
+        2: { 
+            name: 'exploded-view', 
+            title: 'Precision Engineering',
+            content: 'Permanent magnets and electromagnets work together to drive the titanium rod that contacts the skin.'
+        },
+        3: { 
+            name: 'force-diagram', 
+            title: 'Interactive Bistable Mechanics',
+            content: 'Push the transducer up and down to see how magnetic forces balance skin elasticity in real-time.'
+        },
+        4: { 
+            name: 'array-configuration', 
+            title: 'Scalable Haptic Arrays',
+            content: 'Hexagonal arrays with 1.3cm pitch enable complex spatial information patterns across body surfaces.'
+        },
+        5: { 
+            name: 'sensory-demo', 
+            title: 'Assistive Technology in Action',
+            content: 'LiDAR-guided navigation translates visual information into intuitive haptic feedback patterns.'
+        }
+    },
+    
+    // Navigation rules
+    NAVIGATION: {
+        1: [2, 4], // State 1 can go to State 2 or 4
+        2: [1, 3], // State 2 can go to State 1 or 3  
+        3: [1, 2], // State 3 can go to State 1 or 2
+        4: [1, 5], // State 4 can go to State 1 or 5
+        5: [1, 4]  // State 5 can go to State 1 or 4
+    },
+    
+    // Transition animations
+    TRANSITIONS: {
+        '1-2': 'state1-to-state2.webm',
+        '2-3': 'state2-to-state3.webm', 
+        '1-4': 'state1-to-state4.webm',
+        '4-5': 'state4-to-state5.webm'
+    },
+    
     // Animation settings
     ANIMATION: {
+        DURATION: 1000, // 1 second
         FPS: 25,
-        FRAME_EXTENSION: '.webp',
-        FRAME_PADDING: 8, // Number of digits in frame names
-        PRELOAD_ENABLED: true
-    },
-    
-    // State machine settings
-    STATES: {
-        1: { name: 'transducer-on-hand', title: 'Breakthrough Haptic Technology' },
-        2: { name: 'exploded-view', title: 'Precision Engineering' },
-        3: { name: 'force-diagram', title: 'Interactive Bistable Mechanics' },
-        4: { name: 'array-configuration', title: 'Scalable Haptic Arrays' },
-        5: { name: 'sensory-demo', title: 'Assistive Technology in Action' }
-    },
-    
-    // Transition definitions
-    TRANSITIONS: {
-        '1-2': 'state1-to-state2',
-        '2-3': 'state2-to-state3', 
-        '1-4': 'state1-to-state4',
-        '4-5': 'state4-to-state5'
-    },
-    
-    // Performance settings
-    PERFORMANCE: {
-        PRELOAD_BUFFER_SIZE: 3, // Number of states to preload ahead
-        LAZY_LOAD_THRESHOLD: 2000, // ms delay before loading non-critical assets
-        CACHE_DURATION: 3600000 // 1 hour in milliseconds
+        PATH: 'assets/animations/'
     },
     
     // Academic citation

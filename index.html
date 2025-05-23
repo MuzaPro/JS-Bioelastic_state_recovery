@@ -7,14 +7,9 @@
     <title>Bioelastic State Recovery | Interactive Haptic Transducer</title>
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/state-machine.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/themes.css">
     
     <!-- Favicon -->
     <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -23,28 +18,58 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <!-- State Machine Container -->
-    <main id="app">
+    <!-- Main Application -->
+    <main id="app" class="container">
+        <!-- Loading Screen -->
         <div class="loading-screen">
             <h1>Bioelastic State Recovery</h1>
             <p>Interactive Haptic Transducer Platform</p>
             <div class="loading-spinner"></div>
         </div>
         
-        <!-- State content will be dynamically loaded here -->
+        <!-- State Container -->
         <div id="state-container" class="hidden">
-            <!-- State 1: Default starting state -->
-            <div id="state1" class="state active">
+            <!-- State 1: Transducer on Hand -->
+            <div id="state1" class="state">
                 <h2>Breakthrough Haptic Technology</h2>
-                <!-- Content will be loaded from states/state1.html -->
+                <p>Revolutionary bistable transducer that stores energy in compressed skin, requiring power only during state transitions.</p>
+                <p>Like e-ink displays, this device consumes virtually no power while maintaining haptic feedback states.</p>
+            </div>
+            
+            <!-- State 2: Exploded View -->
+            <div id="state2" class="state">
+                <h2>Precision Engineering</h2>
+                <p>Permanent magnets and electromagnets work together to drive the titanium rod that contacts the skin.</p>
+                <p>Strategic placement of magnetic components creates the bistable mechanism that enables energy-efficient operation.</p>
+            </div>
+            
+            <!-- State 3: Force Diagram -->
+            <div id="state3" class="state">
+                <h2>Interactive Bistable Mechanics</h2>
+                <p>Push the transducer up and down to see how magnetic forces balance skin elasticity in real-time.</p>
+                <p>Force diagrams update dynamically to show the energy states during compression and relaxation.</p>
+            </div>
+            
+            <!-- State 4: Array Configuration -->
+            <div id="state4" class="state">
+                <h2>Scalable Haptic Arrays</h2>
+                <p>Hexagonal arrays with 1.3cm pitch enable complex spatial information patterns across body surfaces.</p>
+                <p>Integrated battery and wireless Bluetooth control coordinate 19+ independent transducers seamlessly.</p>
+            </div>
+            
+            <!-- State 5: Sensory Demo -->
+            <div id="state5" class="state">
+                <h2>Assistive Technology in Action</h2>
+                <p>LiDAR-guided navigation translates visual information into intuitive haptic feedback patterns.</p>
+                <p>Real-time obstacle detection helps visually impaired users navigate complex environments safely.</p>
             </div>
         </div>
+        
+        <!-- Navigation -->
+        <nav id="state-nav" class="state-navigation hidden">
+            <!-- Dynamic navigation buttons will be inserted here -->
+        </nav>
     </main>
-    
-    <!-- Navigation -->
-    <nav id="state-nav" class="state-navigation hidden">
-        <!-- Dynamic navigation buttons will be inserted here -->
-    </nav>
     
     <!-- Academic Citation Footer -->
     <footer class="publication-link">
@@ -55,13 +80,7 @@
     
     <!-- JavaScript -->
     <script src="js/config.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/preloader.js"></script>
     <script src="js/animation-player.js"></script>
-    <script src="js/navigation.js"></script>
-    <script src="js/interactive-elements.js"></script>
-    <script src="js/force-diagram.js"></script>
     <script src="js/state-machine.js"></script>
-    <script src="js/analytics.js"></script>
 </body>
 </html>
