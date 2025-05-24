@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bioelastic State Recovery • Docs</title>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
   <style>
     :root {
@@ -48,7 +49,7 @@
     <tr><td><strong>Content Flow</strong></td><td>Five conceptual “states,” each with a hero still image plus forward video transitions.</td></tr>
     <tr><td><strong>Tech Stack</strong></td><td>Vanilla HTML / CSS / JS, WebM videos rendered in Blender → graded in DaVinci; hosted on GitHub Pages.</td></tr>
     <tr><td><strong>Performance Goal</strong></td><td>≤ 2 MB initial load, 60 fps on modern mobile, instant back‑navigation.</td></tr>
-    <tr><td><strong>Live Demo</strong></td><td><a href="#" target="_blank" rel="noopener noreferrer">(add link once deployed)</a></td></tr>
+    
   </table>
   <hr />
   <h2 id="state-machine">2 · State‑Machine Primer</h2>
@@ -80,8 +81,8 @@ stateDiagram-v2
 sequenceDiagram
     participant UI as Button Click
     participant JS as stateMachine.js
-    participant VID as <video>
-    participant IMG as <img>
+    participant VID as VideoElement
+    participant IMG as ImageElement
     UI->>JS: click "Explore Design" (target 2)
     JS->>VID: set src "1-2.webm"\nplay()
     Note over VID: onended
@@ -125,12 +126,7 @@ sequenceDiagram
       </ul></li>
   </ol>
   <hr />
-  <h2 id="embed">6 · Embedding</h2>
-  <p>This very file <code>docs.html</code> lives alongside <code>index.html</code>. Link it from your navbar or footer so other developers can inspect the implementation without cloning the repo.</p>
-  <hr />
-  <h2 id="license">7 · License &amp; Attribution</h2>
-  <p>All source under MIT (same as repo). Video stills © 2025 Muza Productions.<br>
-  Please credit the underlying <em>Nature</em> paper when embedding elsewhere.</p>
+  
   <script>
     mermaid.initialize({ startOnLoad: true });
   </script>
