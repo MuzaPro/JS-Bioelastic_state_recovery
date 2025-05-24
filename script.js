@@ -161,10 +161,10 @@ function supportsReversePlayback() {
 // Play transition animation (forward only)
 function playTransitionAnimation(animationPath, targetState) {
     return new Promise((resolve, reject) => {
-        // Preload the video before playing
+        // Set the video source
         stateAnimation.src = animationPath;
         
-        stateAnimation.oncanplaythrough = () => {
+        stateAnimation.onloadedmetadata = () => {
             // Reset to beginning
             stateAnimation.currentTime = 0;
             stateAnimation.playbackRate = 1;
@@ -173,9 +173,7 @@ function playTransitionAnimation(animationPath, targetState) {
             stateAnimation.classList.add('playing');
             
             // Play the video
-            stateAnimation.play().then(() => {
-                console.log('Animation playing:', animationPath);
-            }).catch(err => {
+            stateAnimation.play().catch(err => {
                 console.error('Playback error:', err);
                 updateToTargetImage();
             });
@@ -196,14 +194,12 @@ function playTransitionAnimation(animationPath, targetState) {
                     // Hide video after image is ready
                     setTimeout(() => {
                         stateAnimation.classList.remove('playing');
-                        stateAnimation.src = ''; // Clear video source
                         resolve();
                     }, 50); // Small delay to ensure smooth transition
                 };
                 tempImg.src = newState.image;
             } else {
                 stateAnimation.classList.remove('playing');
-                stateAnimation.src = ''; // Clear video source
                 resolve();
             }
         }

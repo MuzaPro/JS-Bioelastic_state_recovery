@@ -47,6 +47,11 @@ body {
     align-items: center;
 }
 
+.logo img { 
+  height: 40px; 
+  filter: brightness(0) invert(1); /* Make logo white */ 
+}
+
 .logo {
     color: #ffffff;
     font-weight: 900;
