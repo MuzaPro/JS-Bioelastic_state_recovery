@@ -3,84 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Interactive platform showcasing bioelastic haptic transducer research published in Nature">
-    <title>Bioelastic State Recovery | Interactive Haptic Transducer</title>
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/variables.css">
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/state-machine.css">
-    
-    <!-- Favicon -->
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <title>Bioelastic State Recovery - Interactive Demo</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Main Application -->
-    <main id="app" class="container">
-        <!-- Loading Screen -->
-        <div class="loading-screen">
-            <h1>Bioelastic State Recovery</h1>
-            <p>Interactive Haptic Transducer Platform</p>
-            <div class="loading-spinner"></div>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">
+                    TRANSDUCER
+                </a></a>
+                <ul class="nav-links">
+                    <li><a href="#">PEOPLE</a></li>
+                    <li><a href="#">RESEARCH</a></li>
+                    <li><a href="#">PUBLICATIONS</a></li>
+                    <li><a href="#">CONTACT</a></li>
+                </ul>
+                <div class="social-links">
+                    <a href="#" aria-label="Twitter">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                    </a>
+                    <a href="#" aria-label="LinkedIn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        </svg>
+                    </a>
+                </div>
+            </nav>
         </div>
-        
-        <!-- State Container -->
-        <div id="state-container" class="hidden">
-            <!-- State 1: Transducer on Hand -->
-            <div id="state1" class="state">
-                <h2>Breakthrough Haptic Technology</h2>
-                <p>Revolutionary bistable transducer that stores energy in compressed skin, requiring power only during state transitions.</p>
-                <p>Like e-ink displays, this device consumes virtually no power while maintaining haptic feedback states.</p>
-            </div>
-            
-            <!-- State 2: Exploded View -->
-            <div id="state2" class="state">
-                <h2>Precision Engineering</h2>
-                <p>Permanent magnets and electromagnets work together to drive the titanium rod that contacts the skin.</p>
-                <p>Strategic placement of magnetic components creates the bistable mechanism that enables energy-efficient operation.</p>
-            </div>
-            
-            <!-- State 3: Force Diagram -->
-            <div id="state3" class="state">
-                <h2>Interactive Bistable Mechanics</h2>
-                <p>Push the transducer up and down to see how magnetic forces balance skin elasticity in real-time.</p>
-                <p>Force diagrams update dynamically to show the energy states during compression and relaxation.</p>
-            </div>
-            
-            <!-- State 4: Array Configuration -->
-            <div id="state4" class="state">
-                <h2>Scalable Haptic Arrays</h2>
-                <p>Hexagonal arrays with 1.3cm pitch enable complex spatial information patterns across body surfaces.</p>
-                <p>Integrated battery and wireless Bluetooth control coordinate 19+ independent transducers seamlessly.</p>
-            </div>
-            
-            <!-- State 5: Sensory Demo -->
-            <div id="state5" class="state">
-                <h2>Assistive Technology in Action</h2>
-                <p>LiDAR-guided navigation translates visual information into intuitive haptic feedback patterns.</p>
-                <p>Real-time obstacle detection helps visually impaired users navigate complex environments safely.</p>
-            </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <section class="demo-section">
+                <div class="content-wrapper">
+                    <div class="text-content">
+                        <h1 class="main-title">Breakthrough Haptic Technology</h1>
+                        <div class="section-divider"></div>
+                        <p class="description">
+                            This breakthrough transducer integrates human skin as a central mechanical component, creating the first energy-recovering haptic actuator. By leveraging skin's natural elasticity, the device achieves bistable operation with 285% greater energy efficiency than conventional approaches. The electromagnetic mechanism delivers forces up to 1.4 N with displacements exceeding 2 mm, targeting specific mechanoreceptor classes for precise tactile sensations. This bio-integrated approach fundamentally reimagines the interface between technology and human sensory perception.
+                        </p>
+                        <div class="button-group">
+                            <button class="action-button" id="exploreDesign">
+                                Explore Design
+                            </button>
+                            <button class="action-button" id="viewApplications">
+                                View Applications
+                            </button>
+                        </div>
+                    </div>
+                    <div class="visual-content">
+                        <div class="media-container">
+                            <img src="assets/animations/state-static/state1_static.webp" 
+                                 alt="Haptic transducer on hand" 
+                                 class="state-visual"
+                                 id="stateVisual">
+                            <video class="state-animation" 
+                                   id="stateAnimation"
+                                   preload="auto">
+                                <source src="" type="video/webm">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
-        
-        <!-- Navigation -->
-        <nav id="state-nav" class="state-navigation hidden">
-            <!-- Dynamic navigation buttons will be inserted here -->
-        </nav>
     </main>
-    
-    <!-- Academic Citation Footer -->
-    <footer class="publication-link">
-        <a href="https://doi.org/10.1038/s41586-024-08155-9" target="_blank" rel="noopener noreferrer">
-            📄 Read the full Nature publication
-        </a>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2024 Bioelastic State Recovery. All rights reserved.</p>
+        </div>
     </footer>
-    
-    <!-- JavaScript -->
-    <script src="js/config.js"></script>
-    <script src="js/animation-player.js"></script>
-    <script src="js/state-machine.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
