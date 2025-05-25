@@ -250,6 +250,74 @@ body {
     opacity: 0;
 }
 
+/* State Navigation */
+.state-nav {
+    --accent: #29292A;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .06);
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+}
+
+.state-link {
+    background: none;
+    border: none;
+    font: 600 13px/1 Roboto, sans-serif;
+    color: var(--accent);
+    opacity: .55;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: opacity .25s, transform .25s;
+}
+
+.state-link i {
+    font-size: 18px;
+}
+
+.state-link:hover {
+    opacity: .8;
+    transform: translateY(-2px);
+}
+
+.state-link.active {
+    cursor: default;
+    opacity: 1;
+    position: relative;
+}
+
+.state-link.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+}
+
+@media (max-width: 768px) {
+    .state-nav {
+        gap: 22px;
+    }
+    
+    .state-link span {
+        font-size: 11px;
+    }
+    
+    .state-link i {
+        font-size: 16px;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .media-container {

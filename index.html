@@ -6,6 +6,10 @@
     <title>Bioelastic State Recovery - Interactive Demo</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-+XEjz…"
+      crossorigin="anonymous" referrerpolicy="no-referrer">
 </head>
 <body>
     <!-- Header -->
@@ -37,6 +41,25 @@
         </div>
     </header>
 
+    <!-- State Navigation -->
+    <nav class="state-nav">
+      <button class="state-link" data-state="1">
+        <i class="fa-solid fa-hand"></i><span>Intro</span>
+      </button>
+      <button class="state-link" data-state="2">
+        <i class="fa-solid fa-wrench"></i><span>Design</span>
+      </button>
+      <button class="state-link" data-state="3">
+        <i class="fa-solid fa-arrows-up-down"></i><span>Forces</span>
+      </button>
+      <button class="state-link" data-state="4">
+        <i class="fa-solid fa-hexagon"></i><span>Array</span>
+      </button>
+      <button class="state-link" data-state="5">
+        <i class="fa-solid fa-eye"></i><span>Feedback</span>
+      </button>
+    </nav>
+
     <!-- Main Content -->
     <main class="main-content">
         <div class="container">
@@ -48,14 +71,6 @@
                         <p class="description">
                             This breakthrough transducer integrates human skin as a central mechanical component, creating the first energy-recovering haptic actuator. By leveraging skin's natural elasticity, the device achieves bistable operation with 285% greater energy efficiency than conventional approaches. The electromagnetic mechanism delivers forces up to 1.4 N with displacements exceeding 2 mm, targeting specific mechanoreceptor classes for precise tactile sensations. This bio-integrated approach fundamentally reimagines the interface between technology and human sensory perception.
                         </p>
-                        <div class="button-group">
-                            <button class="action-button" id="exploreDesign">
-                                Explore Design
-                            </button>
-                            <button class="action-button" id="viewApplications">
-                                View Applications
-                            </button>
-                        </div>
                     </div>
                     <div class="visual-content">
                         <div class="media-container">
