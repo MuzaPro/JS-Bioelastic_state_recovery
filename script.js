@@ -29,10 +29,11 @@ const states = {
     }
 };
 
-// Animation paths - only forward animations needed
 const animations = {
     "1-2": "assets/animations/state1-to-state2.webm",
-    "1-4": "assets/animations/state1-to-state4.webm"
+    "2-1": "assets/animations/state2-to-state1.webm",
+    "1-4": "assets/animations/state1-to-state4.webm",
+    "4-1": "assets/animations/state4-to-state1.webm"
 };
 
 // Current state
@@ -47,7 +48,7 @@ const mainTitle = document.querySelector('.main-title');
 const description = document.querySelector('.description');
 const buttonGroup = document.querySelector('.button-group');
 
-// Initialize
+// Initialise
 document.addEventListener('DOMContentLoaded', () => {
     setupButtonListeners();
     preloadAnimations();
@@ -66,9 +67,9 @@ function setupButtonListeners() {
     });
 }
 
-// Preload animations for smooth playback
+// Pre‑load all animations for smooth playback
 function preloadAnimations() {
-    Object.entries(animations).forEach(([key, path]) => {
+    Object.values(animations).forEach(path => {
         const video = document.createElement('video');
         video.src = path;
         video.preload = 'auto';
@@ -78,55 +79,32 @@ function preloadAnimations() {
 // Main transition function
 async function transitionToState(targetState) {
     if (isTransitioning || targetState === currentState) return;
-    
+
     isTransitioning = true;
-    
-    // Determine if we need to play forward or use instant transition
-    let animationPath;
-    let useInstantTransition = false;
-    
-    if (currentState === 1) {
-        // Going forward from state 1
-        animationPath = animations[`${currentState}-${targetState}`];
-    } else if (targetState === 1) {
-        // Going back to state 1 - use instant transition
-        useInstantTransition = true;
-    } else {
-        console.warn(`No direct animation path from state ${currentState} to ${targetState}`);
-        isTransitioning = false;
-        return;
-    }
-    
-    if (!animationPath && !useInstantTransition) {
-        console.warn(`Animation not found for transition`);
-        isTransitioning = false;
-        return;
-    }
-    
+
+    const key = `${currentState}-${targetState}`;
+    const animationPath = animations[key];
+    const useInstantTransition = !animationPath;
+
     try {
         if (useInstantTransition) {
-            // Instant transition for going back
             await instantTransition(targetState);
         } else {
-            // Play forward animation
             await playTransitionAnimation(animationPath, targetState);
         }
-        
+
         // Fade out current content
         textContent.classList.add('fade-out');
-        
-        // Wait for fade out
         await wait(300);
-        
+
         // Update content
         updateContent(targetState);
-        
+
         // Update state
         currentState = targetState;
-        
+
         // Fade in new content
         textContent.classList.remove('fade-out');
-        
     } catch (error) {
         console.error('Transition error:', error);
     } finally {
@@ -134,12 +112,11 @@ async function transitionToState(targetState) {
     }
 }
 
-// Instant transition (for reverse navigation)
+// Instant transition (fallback when no animation provided)
 function instantTransition(targetState) {
     return new Promise((resolve) => {
         const newState = states[targetState];
         if (newState && newState.image) {
-            // Preload the new image
             const tempImg = new Image();
             tempImg.onload = () => {
                 stateVisual.src = tempImg.src;
@@ -152,50 +129,43 @@ function instantTransition(targetState) {
     });
 }
 
-// Check browser support for reverse playback
-function supportsReversePlayback() {
-    const video = document.createElement('video');
-    return 'playbackRate' in video;
-}
-
-// Play transition animation (forward only)
+// Play transition animation
 function playTransitionAnimation(animationPath, targetState) {
     return new Promise((resolve, reject) => {
-        // Set the video source
         stateAnimation.src = animationPath;
-        
+
         stateAnimation.onloadedmetadata = () => {
-            // Reset to beginning
             stateAnimation.currentTime = 0;
             stateAnimation.playbackRate = 1;
-            
-            // Make video visible instantly (no fade)
+
+            // Show the video instantly
             stateAnimation.classList.add('playing');
-            
-            // Play the video
-            stateAnimation.play().catch(err => {
-                console.error('Playback error:', err);
-                updateToTargetImage();
-            });
+            stateAnimation
+                .play()
+                .catch(err => {
+                    console.error('Playback error:', err);
+                    updateToTargetImage();
+                });
         };
-        
-        // When video ends
+
         stateAnimation.onended = () => {
             updateToTargetImage();
         };
-        
+
+        stateAnimation.onerror = () => {
+            reject(new Error('Animation failed to load'));
+        };
+
         function updateToTargetImage() {
             const newState = states[targetState];
             if (newState && newState.image) {
-                // Preload the new image before switching
                 const tempImg = new Image();
                 tempImg.onload = () => {
                     stateVisual.src = tempImg.src;
-                    // Hide video after image is ready
                     setTimeout(() => {
                         stateAnimation.classList.remove('playing');
                         resolve();
-                    }, 50); // Small delay to ensure smooth transition
+                    }, 50);
                 };
                 tempImg.src = newState.image;
             } else {
@@ -203,23 +173,17 @@ function playTransitionAnimation(animationPath, targetState) {
                 resolve();
             }
         }
-        
-        stateAnimation.onerror = () => {
-            reject(new Error('Animation failed to load'));
-        };
     });
 }
 
-// Update content based on state
+// Update text/buttons for a given state
 function updateContent(stateId) {
     const state = states[stateId];
     if (!state) return;
-    
-    // Update text
+
     mainTitle.textContent = state.title;
     description.textContent = state.description;
-    
-    // Update buttons
+
     buttonGroup.innerHTML = '';
     state.buttons.forEach(button => {
         const btn = document.createElement('button');
@@ -230,18 +194,22 @@ function updateContent(stateId) {
     });
 }
 
-// Utility function for delays
+// Utility delay
 function wait(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Handle back button navigation
+// Handle browser back/forward buttons
 window.addEventListener('popstate', (event) => {
-    if (event.state && event.state.stateId) {
+    if (event.state?.stateId !== undefined) {
         transitionToState(event.state.stateId);
     }
 });
 
-// Note: Reverse video playback may not work in all browsers
-// Safari has the best support, Chrome/Firefox may have issues
-// The fallback will just switch to the target image without animation
+/* 
+ * Notes:
+ * - Reverse transitions are provided as separate WebM files to ensure full
+ *   cross‑browser compatibility. No runtime reverse playback is attempted.
+ * - If a particular transition video is missing, the code gracefully falls back
+ *   to an instant static image swap.
+ */
