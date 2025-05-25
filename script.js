@@ -45,7 +45,9 @@ const animations = {
     "2-5": "assets/animations/state2-to-state5.webm",
     "5-2": "assets/animations/state5-to-state2.webm",
     "3-5": "assets/animations/state3-to-state5.webm",
-    "5-3": "assets/animations/state5-to-state3.webm"
+    "5-3": "assets/animations/state5-to-state3.webm",
+    "4-2": "assets/animations/state4-to-state2.webm",
+    "2-4": "assets/animations/state2-to-state4.webm"
 };
 
 // Current state

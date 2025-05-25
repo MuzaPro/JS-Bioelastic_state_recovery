@@ -26,6 +26,7 @@ body {
     color: #333;
     background-color: #ffffff;
     line-height: 1.6;
+    padding-bottom: 68px; /* nav height safeguard */
 }
 
 /* Container */
@@ -250,18 +251,20 @@ body {
     opacity: 0;
 }
 
-/* State Navigation */
+/* State Navigation - Updated for bottom positioning */
 .state-nav {
     --accent: #29292A;
     display: flex;
     justify-content: center;
     gap: 40px;
     padding: 12px 0;
-    border-bottom: 1px solid rgba(0, 0, 0, .06);
+    border-bottom: 1px solid rgba(0,0,0,.06);
     background: #fff;
     position: sticky;
-    top: 0;
+    bottom: 0;
+    top: auto;
     z-index: 1100;
+    box-shadow: 0 -1px 3px rgba(0,0,0,.04);
 }
 
 .state-link {
@@ -304,18 +307,31 @@ body {
     border-radius: 1px;
 }
 
-@media (max-width: 768px) {
-    .state-nav {
-        gap: 22px;
-    }
-    
-    .state-link span {
-        font-size: 11px;
-    }
-    
-    .state-link i {
-        font-size: 16px;
-    }
+/* Thin divider */
+.thin-divider {
+    border: 0;
+    height: 1px;
+    margin: 12px 0 6px;
+    background: rgba(0,0,0,.08);
+}
+
+/* Citation footer */
+.paper-cite {
+    font: 400 12px/1.4 "Roboto", sans-serif;
+    color: #555;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.paper-cite i {
+    font-size: 12px;
+    opacity: .75;
+    transition: opacity .2s;
+}
+
+.paper-cite a:hover i {
+    opacity: 1;
 }
 
 /* Responsive Design */
