@@ -13,7 +13,16 @@ const states = {
     3: {
         title: "Force Distribution",
         description: "The transducer generates precisely controlled forces that interact with multiple layers of skin tissue. This mechanical stimulation activates specific mechanoreceptors at different depths, creating distinct tactile sensations. The bistable design allows the device to maintain either state with zero power consumption, requiring energy only during state transitions. This fundamental reimagining of haptic actuation results in unprecedented energy efficiency while delivering high-fidelity tactile feedback.",
-        image: "assets/animations/state-static/state3-static.webp"  // Updated hyphen instead of underscore
+        image: "assets/animations/state-static/state3-static.webp",
+        hasSubstate: true,
+        currentSubstate: "A"
+    },
+    "3B": {
+        title: "Force Distribution", // Same title as state 3
+        description: "The transducer generates precisely controlled forces that interact with multiple layers of skin tissue. This mechanical stimulation activates specific mechanoreceptors at different depths, creating distinct tactile sensations. The bistable design allows the device to maintain either state with zero power consumption, requiring energy only during state transitions. This fundamental reimagining of haptic actuation results in unprecedented energy efficiency while delivering high-fidelity tactile feedback.", // Same description as state 3
+        image: "assets/animations/state-static/state3b-static.webp",
+        hasSubstate: true,
+        currentSubstate: "B"
     },
     4: {
         title: "Scalable Haptic Arrays",
@@ -27,7 +36,7 @@ const states = {
     }
 };
 
-// Update animations object to only include files that actually exist
+// Update animations object to include the new substate transitions
 const animations = {
     "1-2": "assets/animations/state1-to-state2.webm",
     "2-1": "assets/animations/state2-to-state1.webm",
@@ -36,7 +45,9 @@ const animations = {
     "2-3": "assets/animations/state2-to-state3.webm",
     "3-2": "assets/animations/state3-to-state2.webm",
     "2-4": "assets/animations/state2-to-state4.webm",
-    "4-2": "assets/animations/state4-to-state2.webm"
+    "4-2": "assets/animations/state4-to-state2.webm",
+    "3-3B": "assets/animations/3Ato3B.webm",
+    "3B-3": "assets/animations/3Bto3A.webm"
     // Removed non-existent animation files
 };
 
@@ -73,9 +84,15 @@ function setupNavListeners() {
 
 // Update active nav state
 function updateActiveNav() {
-    navLinks.forEach(link =>
-        link.classList.toggle('active', Number(link.dataset.state) === currentState)
-    );
+    navLinks.forEach(link => {
+        // For state 3B, highlight the state 3 nav button
+        if (currentState === "3B" && Number(link.dataset.state) === 3) {
+            link.classList.add('active');
+        } else {
+            // Normal numeric comparison for other states
+            link.classList.toggle('active', Number(link.dataset.state) === currentState);
+        }
+    });
 }
 
 // Pre‑load all animations for smooth playback
@@ -101,8 +118,13 @@ async function transitionToState(targetState) {
     const animationPath = animations[key];
     
     try {
+        // First check if we're coming from state 3B - we must always go through 3A first
+        if (currentState === "3B" && targetState !== 3) {
+            console.log(`Coming from 3B: First going to 3A, then to ${targetState}`);
+            await performCompoundTransition("3B", 3, targetState);
+        }
         // Check if we need a compound transition
-        if (!animationPath) {
+        else if (!animationPath) {
             // For state 1-3 transitions, go through state 2
             if ((currentState === 1 && targetState === 3) || 
                 (currentState === 3 && targetState === 1)) {
@@ -270,13 +292,63 @@ function playTransitionAnimation(animationPath, targetState) {
     });
 }
 
-// Update text content for a given state
+// New function to toggle between substates for state 3
+async function toggleState3Substate() {
+    if (isTransitioning) return;
+    
+    isTransitioning = true;
+    
+    try {
+        const currentSubstate = states[currentState].currentSubstate;
+        const targetSubstate = currentSubstate === "A" ? "3B" : "3";
+        
+        console.log(`Toggling state 3 substate: ${currentSubstate} → ${states[targetSubstate].currentSubstate}`);
+        
+        // Play transition animation
+        const key = `${currentState}-${targetSubstate}`;
+        const animationPath = animations[key];
+        
+        if (animationPath) {
+            await playTransitionAnimation(animationPath, targetSubstate);
+        } else {
+            await instantTransition(targetSubstate);
+        }
+        
+        // Update state (but not content since title and description stay the same)
+        currentState = targetSubstate;
+        
+        // Update active nav state - state 3 remains highlighted
+        updateActiveNav();
+        
+    } catch (error) {
+        console.error('Substate transition error:', error);
+    } finally {
+        isTransitioning = false;
+    }
+}
+
+// Update content for a given state
 function updateContent(stateId) {
     const state = states[stateId];
     if (!state) return;
 
     mainTitle.textContent = state.title;
     description.textContent = state.description;
+    
+    // Add or remove the switch button based on whether we're in state 3 or 3B
+    const existingSwitchBtn = document.querySelector('.switch-btn');
+    if (existingSwitchBtn) {
+        existingSwitchBtn.remove();
+    }
+    
+    if (state.hasSubstate) {
+        const switchBtn = document.createElement('button');
+        switchBtn.className = 'switch-btn';
+        switchBtn.textContent = 'Switch';
+        switchBtn.addEventListener('click', toggleState3Substate);
+        
+        description.insertAdjacentElement('afterend', switchBtn);
+    }
 }
 
 // Utility delay

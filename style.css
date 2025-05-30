@@ -345,6 +345,33 @@ body {
     opacity: 1;
 }
 
+/* Switch Button for State 3 */
+.switch-btn {
+    background-color: #29292A;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    transition: all 0.25s ease;
+    display: inline-block;
+}
+
+.switch-btn:hover {
+    background-color: #444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.switch-btn:active {
+    transform: translateY(0);
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .media-container {
