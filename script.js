@@ -13,7 +13,7 @@ const states = {
     3: {
         title: "Force Distribution",
         description: "The transducer generates precisely controlled forces that interact with multiple layers of skin tissue. This mechanical stimulation activates specific mechanoreceptors at different depths, creating distinct tactile sensations. The bistable design allows the device to maintain either state with zero power consumption, requiring energy only during state transitions. This fundamental reimagining of haptic actuation results in unprecedented energy efficiency while delivering high-fidelity tactile feedback.",
-        image: "assets/animations/state-static/state3_static.webp"
+        image: "assets/animations/state-static/state3-static.webp"  // Updated hyphen instead of underscore
     },
     4: {
         title: "Scalable Haptic Arrays",
@@ -27,27 +27,17 @@ const states = {
     }
 };
 
+// Update animations object to only include files that actually exist
 const animations = {
     "1-2": "assets/animations/state1-to-state2.webm",
     "2-1": "assets/animations/state2-to-state1.webm",
     "1-4": "assets/animations/state1-to-state4.webm",
     "4-1": "assets/animations/state4-to-state1.webm",
-    "1-3": "assets/animations/state1-to-state3.webm",
-    "3-1": "assets/animations/state3-to-state1.webm",
     "2-3": "assets/animations/state2-to-state3.webm",
     "3-2": "assets/animations/state3-to-state2.webm",
-    "3-4": "assets/animations/state3-to-state4.webm",
-    "4-3": "assets/animations/state4-to-state3.webm",
-    "4-5": "assets/animations/state4-to-state5.webm",
-    "5-4": "assets/animations/state5-to-state4.webm",
-    "1-5": "assets/animations/state1-to-state5.webm",
-    "5-1": "assets/animations/state5-to-state1.webm",
-    "2-5": "assets/animations/state2-to-state5.webm",
-    "5-2": "assets/animations/state5-to-state2.webm",
-    "3-5": "assets/animations/state3-to-state5.webm",
-    "5-3": "assets/animations/state5-to-state3.webm",
-    "4-2": "assets/animations/state4-to-state2.webm",
-    "2-4": "assets/animations/state2-to-state4.webm"
+    "2-4": "assets/animations/state2-to-state4.webm",
+    "4-2": "assets/animations/state4-to-state2.webm"
+    // Removed non-existent animation files
 };
 
 // Current state
@@ -94,6 +84,10 @@ function preloadAnimations() {
         const video = document.createElement('video');
         video.src = path;
         video.preload = 'auto';
+        // Add error handling to prevent console errors
+        video.onerror = () => {
+            console.warn(`Unable to preload animation: ${path}`);
+        };
     });
 }
 
@@ -105,12 +99,30 @@ async function transitionToState(targetState) {
 
     const key = `${currentState}-${targetState}`;
     const animationPath = animations[key];
-    const useInstantTransition = !animationPath;
-
+    
     try {
-        if (useInstantTransition) {
-            await instantTransition(targetState);
+        // Check if we need a compound transition
+        if (!animationPath) {
+            // For state 1-3 transitions, go through state 2
+            if ((currentState === 1 && targetState === 3) || 
+                (currentState === 3 && targetState === 1)) {
+                console.log(`Using compound transition: ${currentState} → 2 → ${targetState}`);
+                await performCompoundTransition(currentState, 2, targetState);
+            } 
+            // For state 3-4 or 3-5 transitions, also go through state 2
+            else if ((currentState === 3 && (targetState === 4 || targetState === 5)) ||
+                     ((currentState === 4 || currentState === 5) && targetState === 3)) {
+                console.log(`Using compound transition: ${currentState} → 2 → ${targetState}`);
+                await performCompoundTransition(currentState, 2, targetState);
+            }
+            else {
+                // Fallback to instant transition if no animation path exists
+                console.log(`No animation found for transition ${currentState}-${targetState}, using instant transition`);
+                await instantTransition(targetState);
+            }
         } else {
+            // Direct transition animation exists
+            console.log(`Playing direct transition: ${currentState} → ${targetState}`);
             await playTransitionAnimation(animationPath, targetState);
         }
 
@@ -131,8 +143,54 @@ async function transitionToState(targetState) {
         textContent.classList.remove('fade-out');
     } catch (error) {
         console.error('Transition error:', error);
+        // Recovery in case of error - still update the content
+        updateContent(targetState);
+        currentState = targetState;
+        updateActiveNav();
+        textContent.classList.remove('fade-out');
     } finally {
         isTransitioning = false;
+    }
+}
+
+// New function to handle compound transitions through an intermediate state
+async function performCompoundTransition(fromState, intermediateState, toState) {
+    console.log(`Starting compound transition: ${fromState} → ${intermediateState} → ${toState}`);
+    
+    try {
+        // First transition: from current to intermediate
+        const firstKey = `${fromState}-${intermediateState}`;
+        const firstAnimation = animations[firstKey];
+        
+        // Only update the visual, not the content yet
+        if (firstAnimation) {
+            await playTransitionAnimation(firstAnimation, intermediateState);
+            console.log(`First leg complete: ${fromState} → ${intermediateState}`);
+        } else {
+            await instantTransition(intermediateState);
+            console.log(`First leg complete (instant): ${fromState} → ${intermediateState}`);
+        }
+        
+        // Brief pause between animations
+        await wait(100);
+        
+        // Second transition: from intermediate to target
+        const secondKey = `${intermediateState}-${toState}`;
+        const secondAnimation = animations[secondKey];
+        
+        if (secondAnimation) {
+            await playTransitionAnimation(secondAnimation, toState);
+            console.log(`Second leg complete: ${intermediateState} → ${toState}`);
+        } else {
+            await instantTransition(toState);
+            console.log(`Second leg complete (instant): ${intermediateState} → ${toState}`);
+        }
+        
+        console.log(`Compound transition complete: ${fromState} → ${intermediateState} → ${toState}`);
+    } catch (error) {
+        console.error('Error in compound transition:', error);
+        // Fallback to direct instant transition in case of error
+        await instantTransition(toState);
     }
 }
 
@@ -144,6 +202,11 @@ function instantTransition(targetState) {
             const tempImg = new Image();
             tempImg.onload = () => {
                 stateVisual.src = tempImg.src;
+                resolve();
+            };
+            tempImg.onerror = () => {
+                console.warn(`Failed to load image: ${newState.image}`);
+                // Fallback to a generic image or just resolve
                 resolve();
             };
             tempImg.src = newState.image;
@@ -177,7 +240,9 @@ function playTransitionAnimation(animationPath, targetState) {
         };
 
         stateAnimation.onerror = () => {
-            reject(new Error('Animation failed to load'));
+            console.error(`Failed to load animation: ${animationPath}`);
+            // Fallback to instant transition
+            instantTransition(targetState).then(resolve).catch(reject);
         };
 
         function updateToTargetImage() {
@@ -190,6 +255,11 @@ function playTransitionAnimation(animationPath, targetState) {
                         stateAnimation.classList.remove('playing');
                         resolve();
                     }, 50);
+                };
+                tempImg.onerror = () => {
+                    console.warn(`Failed to load image: ${newState.image}`);
+                    stateAnimation.classList.remove('playing');
+                    resolve();
                 };
                 tempImg.src = newState.image;
             } else {
