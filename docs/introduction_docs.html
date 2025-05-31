@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Introduction • Bioelastic State Recovery</title>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Light mode */
+      --bg-primary: #ffffff;
+      --bg-secondary: #fafafa;
+      --bg-code: #f8f9fa;
+      --bg-accent: #fff8e1;
+      --bg-highlight: #fffbf0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #888888;
+      --border-light: #e5e5e5;
+      --border-medium: #d0d0d0;
+      --accent-yellow: #ffd700;
+      --accent-yellow-hover: #ffed4e;
+      --accent-yellow-dark: #f4c430;
+      --shadow-light: rgba(0, 0, 0, 0.05);
+      --shadow-medium: rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --bg-code: #151515;
+      --bg-accent: #2a2416;
+      --bg-highlight: #1f1c0f;
+      --text-primary: #e5e5e5;
+      --text-secondary: #b3b3b3;
+      --text-muted: #888888;
+      --border-light: #2a2a2a;
+      --border-medium: #404040;
+      --accent-yellow: #ffd700;
+      --accent-yellow-hover: #ffed4e;
+      --accent-yellow-dark: #f4c430;
+      --shadow-light: rgba(255, 255, 255, 0.05);
+      --shadow-medium: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      scroll-behavior: smooth;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-light);
+      backdrop-filter: blur(10px);
+      padding: 1rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .back-link, .docs-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: var(--transition);
+      box-shadow: 0 2px 8px var(--shadow-medium);
+    }
+
+    .back-link {
+      background: var(--accent-yellow);
+      color: var(--bg-primary);
+    }
+
+    .docs-link {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 2px solid var(--border-medium);
+    }
+
+    .back-link:hover {
+      background: var(--accent-yellow-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px var(--shadow-medium);
+    }
+
+    .docs-link:hover {
+      border-color: var(--accent-yellow);
+      background: var(--bg-highlight);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      background: none;
+      border: 2px solid var(--border-medium);
+      border-radius: 50px;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent-yellow);
+      background: var(--bg-secondary);
+    }
+
+    .theme-icon {
+      width: 20px;
+      height: 20px;
+      fill: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-yellow-dark) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 3rem 0 1.5rem;
+      color: var(--text-primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent-yellow);
+      display: inline-block;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+      color: var(--text-primary);
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin: 1.5rem 0 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    p {
+      margin-bottom: 1.25rem;
+      color: var(--text-secondary);
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 4rem;
+      padding: 2rem 0;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    /* Concept Boxes */
+    .concept-box {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-light);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .concept-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-yellow);
+    }
+
+    .concept-box h3 {
+      margin-top: 0;
+      color: var(--accent-yellow-dark);
+    }
+
+    .highlight-box {
+      background: var(--bg-highlight);
+      border: 2px solid var(--accent-yellow);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .highlight-box .icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    /* Visual Flow */
+    .visual-flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    .flow-step {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 2px solid var(--border-light);
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .flow-step:hover {
+      border-color: var(--accent-yellow);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--shadow-medium);
+    }
+
+    .flow-step-number {
+      background: var(--accent-yellow);
+      color: var(--bg-primary);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin: 0 auto 1rem;
+    }
+
+    .flow-step h4 {
+      margin: 0 0 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .flow-step p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    /* Code Examples */
+    pre, code {
+      font-family: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    }
+
+    code {
+      background: var(--bg-code);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.9em;
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
+    }
+
+    pre {
+      background: var(--bg-code);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    /* Lists */
+    ul, ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+      color: var(--text-secondary);
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    li strong {
+      color: var(--text-primary);
+    }
+
+    /* Links */
+    a {
+      color: var(--accent-yellow-dark);
+      text-decoration: none;
+      transition: var(--transition);
+      border-bottom: 1px solid transparent;
+    }
+
+    a:hover {
+      color: var(--accent-yellow);
+      border-bottom-color: var(--accent-yellow);
+    }
+
+    /* Mermaid Diagrams */
+    .mermaid {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border: 1px solid var(--border-light);
+    }
+
+    /* Interactive Demo Placeholder */
+    .demo-placeholder {
+      background: var(--bg-secondary);
+      border: 2px dashed var(--border-medium);
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      text-align: center;
+      margin: 2rem 0;
+      color: var(--text-muted);
+    }
+
+    /* Dividers */
+    hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--border-medium), transparent);
+      margin: 3rem 0;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .container > * {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1rem 2rem;
+      }
+
+      .header-content {
+        padding: 0 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .nav-links {
+        order: -1;
+      }
+
+      h1 {
+        font-size: 2.25rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .visual-flow {
+        grid-template-columns: 1fr;
+      }
+
+      .concept-box, .highlight-box {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <div class="nav-links">
+        <a href="../index.html" class="back-link">
+          ← Back to Demo
+        </a>
+        <a href="docs.html" class="docs-link">
+          Full Documentation →
+        </a>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="theme-icon" viewBox="0 0 24 24">
+          <path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <h1>Introduction to Interactive State Machines</h1>
+      <p class="hero-subtitle">Creating the illusion of 3D exploration with static images and smart transitions</p>
+    </div>
+
+    <div class="concept-box">
+      <h3>🎭 The Magic Behind the Experience</h3>
+      <p>What you experience as a smooth, interactive 3D exploration is actually an ingenious combination of <strong>static images</strong>, <strong>carefully crafted transition videos</strong>, and <strong>intelligent JavaScript orchestration</strong>. It's like a sophisticated digital flipbook that responds to your clicks.</p>
+      <p>Think of it as <strong>cinematic web development</strong> – we're not building a 3D scene in real-time, we're <em>directing a pre-rendered movie</em> that adapts to user choices.</p>
+    </div>
+
+    <h2>1 · Understanding State Machines</h2>
+
+    <div class="highlight-box">
+      <span class="icon">🔄</span>
+      <h3>What is a State Machine?</h3>
+      <p>A <strong>state machine</strong> is like a smart traffic light system. At any moment, it's in one specific "state" (red, yellow, or green), and it can only change to certain other states based on specific rules.</p>
+      <p>In our project, each "state" represents a different view or perspective of the haptic transducer research. The user can navigate between these states, but only along paths we've defined.</p>
+    </div>
+
+    <h3>Our State System</h3>
+    <p>Our demo has <strong>5 main states</strong>, each representing a different aspect of the research:</p>
+
+    <div class="visual-flow">
+      <div class="flow-step">
+        <div class="flow-step-number">1</div>
+        <h4>Overview</h4>
+        <p>Introduction to the breakthrough technology</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-number">2</div>
+        <h4>Design</h4>
+        <p>Component breakdown and engineering details</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-number">3</div>
+        <h4>Mechanics</h4>
+        <p>Forces diagram of a single transducer (with an interactive switch)</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-number">4</div>
+        <h4>Arrays</h4>
+        <p>Introduce the concept of multiple devices working together</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-number">5</div>
+        <h4>Applications</h4>
+        <p>Real-world use example- navigation sensory feedback</p>
+      </div>
+    </div>
+
+    <h3>State Relationships</h3>
+    <pre class="mermaid">
+graph TD
+    A[State 1: Overview] --> B[State 2: Design]
+    A --> D[State 4: Arrays]
+    B --> A
+    B --> C[State 3: Mechanics]
+    B --> D
+    C --> B
+    C --> C3B[State 3B: Alternate View]
+    C3B --> C
+    D --> A
+    D --> B
+    D --> E[State 5: Applications]
+    E --> D
+    
+    style A fill:#fff8e1
+    style B fill:#fff8e1
+    style C fill:#fff8e1
+    style C3B fill:#fff8e1
+    style D fill:#fff8e1
+    style E fill:#fff8e1
+    </pre>
+
+    <h2>2 · The Static-Animation-Static Pattern</h2>
+
+    <div class="concept-box">
+      <h3>🎬 How We Create Motion from Stillness</h3>
+      <p>Each state in our demo follows this pattern:</p>
+      <ol>
+        <li><strong>Static Image:</strong> A high-quality still frame showing the current perspective</li>
+        <li><strong>Transition Animation:</strong> A 1-second video that smoothly moves to the next perspective</li>
+        <li><strong>Static Image:</strong> The destination perspective, ready for the next interaction</li>
+      </ol>
+    </div>
+
+    <h3>The File Structure</h3>
+    <p>Here's how our assets are organized:</p>
+
+    <pre><code>assets/
+├── animations/
+│   ├── state-static/
+│   │   ├── state1_static.webp     ← Still images for each state
+│   │   ├── state2_static.webp
+│   │   └── state3_static.webp
+│   │
+│   ├── state1-to-state2.webm      ← Transition videos
+│   ├── state2-to-state1.webm      ← Reverse transitions
+│   ├── state1-to-state4.webm
+│   └── state4-to-state1.webm</code></pre>
+
+    <h3>How the Pattern Works</h3>
+
+    <div class="visual-flow">
+      <div class="flow-step">
+        <div class="flow-step-number">📷</div>
+        <h4>Static Display</h4>
+        <p>User sees a crisp, high-quality image. The scene appears to be "paused" and ready for interaction.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-number">🎬</div>
+        <h4>Smooth Transition</h4>
+        <p>When clicked, a pre-rendered video plays, creating the illusion of camera movement through 3D space.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-number">🖼️</div>
+        <h4>New Perspective</h4>
+        <p>Video ends seamlessly on a new static image, maintaining the illusion of a continuous 3D environment.</p>
+      </div>
+    </div>
+
+    <h2>3 · JavaScript: The Conductor</h2>
+
+    <div class="highlight-box">
+      <span class="icon">🎼</span>
+      <h3>Orchestrating the Experience</h3>
+      <p>JavaScript acts like a <strong>conductor</strong> in this digital orchestra. It doesn't create the visuals (that's done in Blender), but it knows exactly <em>when</em> to play each "instrument" (image or video) to create a seamless experience.</p>
+    </div>
+
+    <h3>Key JavaScript Responsibilities</h3>
+
+    <h4>1. State Management</h4>
+    <p>JavaScript keeps track of where the user currently is and what options are available:</p>
+    <pre><code class="language-js">let currentState = 1;  // We're currently viewing State 1
+
+const states = {
+    1: { title: "Overview", image: "state1_static.webp" },
+    2: { title: "Design", image: "state2_static.webp" },
+    // ... and so on
+};</code></pre>
+
+    <h4>2. Transition Logic</h4>
+    <p>When a user clicks, JavaScript decides what should happen:</p>
+    <pre><code class="language-js">// User wants to go from State 1 to State 2
+if (currentState === 1 && targetState === 2) {
+    // Play the transition video: "state1-to-state2.webm"
+    playTransitionAnimation("state1-to-state2.webm");
+} else {
+    // Handle other transitions...
+}</code></pre>
+
+    <h4>3. Smart Routing</h4>
+    <p>Sometimes there's no direct path between states. JavaScript automatically finds the best route:</p>
+    <pre><code class="language-js">// User wants State 1 → State 3, but no direct animation exists
+// JavaScript automatically routes: State 1 → State 2 → State 3
+await playAnimation("1-to-2.webm");   // First leg
+await playAnimation("2-to-3.webm");   // Second leg</code></pre>
+
+    <h2>4 · Creating the 3D Illusion</h2>
+
+    <div class="concept-box">
+      <h3>🎯 The Psychology of Motion</h3>
+      <p>The "3D exploration" feeling comes from carefully designed camera movements that follow natural human vision patterns. Each transition video simulates how you would move your head or body to examine an object from a different angle.</p>
+    </div>
+
+    <h3>Visual Techniques</h3>
+
+    <h4>Camera Movement Patterns</h4>
+    <ul>
+      <li><strong>Orbital Motion:</strong> Circling around the device like examining a sculpture</li>
+      <li><strong>Zoom Transitions:</strong> Moving closer to focus on specific components</li>
+      <li><strong>Perspective Shifts:</strong> Changing viewing angles to reveal hidden details</li>
+      <li><strong>Depth Cues:</strong> Objects move at different speeds to show spatial relationships</li>
+    </ul>
+
+    <h4>Seamless Continuity</h4>
+    <p>The key to the illusion is that each transition video starts <em>exactly</em> where the previous static image ended, and ends <em>exactly</em> where the next static image begins. There are no visual "jumps" or discontinuities.</p>
+
+    <h3>The Technical Flow</h3>
+    <pre class="mermaid">
+sequenceDiagram
+    participant User
+    participant JS as JavaScript
+    participant IMG as Static Image
+    participant VID as Transition Video
+    
+    User->>JS: Clicks navigation button
+    JS->>JS: Determine target state
+    JS->>VID: Load and play transition video
+    VID->>VID: Plays 1-second animation
+    VID->>JS: Video ends
+    JS->>IMG: Switch to target static image
+    JS->>User: New state ready for interaction
+    </pre>
+
+    <h2>5 · Why This Approach Works</h2>
+
+    <div class="visual-flow">
+      <div class="flow-step">
+        <div class="flow-step-number">⚡</div>
+        <h4>Performance</h4>
+        <p>Pre-rendered videos load faster than real-time 3D, work on any device, and never stutter.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-number">🎨</div>
+        <h4>Visual Quality</h4>
+        <p>Blender rendering produces cinematic quality that's impossible to achieve in real-time web 3D.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-number">📱</div>
+        <h4>Compatibility</h4>
+        <p>Works perfectly on mobile devices, tablets, and older computers without requiring special plugins.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-number">🧠</div>
+        <h4>Cognitive Load</h4>
+        <p>Users focus on the content, not figuring out complex 3D controls. Navigation is intuitive and familiar.</p>
+      </div>
+    </div>
+
+    <h2>6 · Building Your Own</h2>
+
+    <div class="highlight-box">
+      <span class="icon">🛠️</span>
+      <h3>Ready to Create Your Own Interactive Experience?</h3>
+      <p>The beauty of this approach is its simplicity. You need:</p>
+      <ul>
+        <li><strong>3D Software</strong> (Blender) to create your scenes and animations</li>
+        <li><strong>Basic JavaScript</strong> to handle state management</li>
+        <li><strong>Planning</strong> to map out your state transitions</li>
+        <li><strong>Patience</strong> to ensure seamless continuity between states</li>
+      </ul>
+    </div>
+
+    <h3>Next Steps</h3>
+    <p>Ready to dive deeper? Check out the <a href="docs_may24.html">full technical documentation</a> to see the complete implementation details, including:</p>
+    <ul>
+      <li>Detailed code walkthrough</li>
+      <li>Advanced state management techniques</li>
+      <li>Performance optimization strategies</li>
+      <li>Troubleshooting common issues</li>
+    </ul>
+
+    <hr />
+    <p><em>This introduction provides the foundation for understanding our approach. The magic is in the details – and those details are waiting in the full documentation.</em></p>
+  </div>
+
+  <script>
+    // Theme management (same as main docs)
+    function getPreferredTheme() {
+      const stored = localStorage.getItem('theme');
+      if (stored) return stored;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      
+      if (window.mermaid) {
+        const mermaidTheme = theme === 'dark' ? 'dark' : 'base';
+        window.mermaid.initialize({ 
+          startOnLoad: true,
+          theme: mermaidTheme,
+          themeVariables: {
+            primaryColor: theme === 'dark' ? '#ffd700' : '#f4c430',
+            primaryTextColor: theme === 'dark' ? '#e5e5e5' : '#1a1a1a',
+            primaryBorderColor: theme === 'dark' ? '#404040' : '#e5e5e5',
+            lineColor: theme === 'dark' ? '#888888' : '#666666',
+            background: theme === 'dark' ? '#1a1a1a' : '#fafafa'
+          }
+        });
+        
+        const mermaidElements = document.querySelectorAll('.mermaid');
+        mermaidElements.forEach(element => {
+          element.removeAttribute('data-processed');
+        });
+        window.mermaid.init();
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      setTheme(next);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setTheme(getPreferredTheme());
+    });
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+
+    // Initialize Mermaid
+    if (window.mermaid) {
+      window.mermaid.initialize({ 
+        startOnLoad: true,
+        theme: getPreferredTheme() === 'dark' ? 'dark' : 'base',
+        themeVariables: {
+          primaryColor: '#ffd700',
+          primaryTextColor: getPreferredTheme() === 'dark' ? '#e5e5e5' : '#1a1a1a',
+          primaryBorderColor: getPreferredTheme() === 'dark' ? '#404040' : '#e5e5e5',
+          lineColor: getPreferredTheme() === 'dark' ? '#888888' : '#666666'
+        }
+      });
+    }
+  </script>
+</body>
+</html>

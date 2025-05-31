@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bioelastic State Recovery • Docs</title>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+  <style>
+    :root {
+      --background: #ffffff;
+      --foreground: #111111;
+      --accent: #0066ff;
+      --code-bg: #f5f5f5;
+      --border: #e0e0e0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #141414;
+        --foreground: #e8e8e8;
+        --accent: #66aaff;
+        --code-bg: #1e1e1e;
+        --border: #333333;
+      }
+    }
+    html { font-family: system-ui, sans-serif; background: var(--background); color: var(--foreground); line-height: 1.6; }
+    body { margin: 2rem 6vw; max-width: 960px; }
+    h1, h2, h3, h4 { color: var(--accent); line-height: 1.2; }
+    pre, code { font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+    pre { background: var(--code-bg); padding: 1rem; overflow-x: auto; border-radius: 8px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; }
+    th, td { border: 1px solid var(--border); padding: .5rem .7rem; text-align: left; }
+    blockquote { border-left: 4px solid var(--accent); padding-left: 1rem; margin-left: 0; color: var(--accent); font-style: italic; }
+    a { color: var(--accent); text-decoration: underline; }
+    hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+  </style>
+</head>
+<body>
+  <a href="../index.html" style="display: inline-block; margin-bottom: 20px; padding: 8px 16px; background: var(--accent); color: white; text-decoration: none; border-radius: 4px;">← Back to Home</a>
+  
+  <h1>Bioelastic State Recovery — Developer Docs</h1>
+  <blockquote>A cinematic, five‑state interactive demo for breakthrough haptic‑transducer research</blockquote>
+  <p><strong>Last updated:</strong> 24 May 2025<br><strong>Maintainer:</strong> Muza Productions / Gabriele Meilikhov (<code>@MuzaPro</code>)</p>
+  <hr />
+  <h2 id="overview">1 · Project at a Glance</h2>
+  <table>
+    <tr><th>Aspect</th><th>Details</th></tr>
+    <tr><td><strong>Concept</strong></td><td>Turn a static Nature paper into a <em>movie‑like, click‑through journey</em> for lab sites &amp; grant pitches.</td></tr>
+    <tr><td><strong>Content Flow</strong></td><td>Five conceptual “states,” each with a hero still image plus forward video transitions.</td></tr>
+    <tr><td><strong>Tech Stack</strong></td><td>Vanilla HTML / CSS / JS, WebM videos rendered in Blender → graded in DaVinci; hosted on GitHub Pages.</td></tr>
+    <tr><td><strong>Performance Goal</strong></td><td>≤ 2 MB initial load, 60 fps on modern mobile, instant back‑navigation.</td></tr>
+    
+  </table>
+  <hr />
+  <h2 id="state-machine">2 · State‑Machine Primer</h2>
+  <p>All navigation is handled by the <code>states</code> object and a minimalist controller in <code>script.js</code>:</p>
+  <pre><code class="language-js">const states = {
+  1: { title: "...", buttons:[{ target:2 },{ target:4 }], image:"state1.webp" },
+  2: { title: "...", buttons:[{ target:1 },{ target:3 }], image:"state2.webp" },
+  /* 3 &amp; 5 are planned; 4 implemented; 5 WIP */
+};
+const animations = { "1-2":"1-2.webm", "1-4":"1-4.webm" };
+</code></pre>
+  <p><strong>Forward moves</strong> (<code>1 → 2</code>, <code>1 → 4</code>) play a pre‑rendered WebM.<br>
+     <strong>Reverse moves</strong> skip video and swap stills instantly.<br>
+     Future non‑linear jumps simply need a new WebM + mapping in <code>animations</code>.</p>
+  <h3>Logical State Graph</h3>
+  <pre class="mermaid">
+stateDiagram-v2
+    %% Nodes
+    [*] --> S1 : page load
+    S1 --> S2 : Explore Design
+    S1 --> S4 : View Applications
+    S2 --> S1 : Back to Start
+    S2 --> S3 : Explore Mechanics
+    S4 --> S1 : Back to Start
+    S4 --> S5 : See Demo
+  </pre>
+  <h3>Play‑Transition Sequence</h3>
+  <pre class="mermaid">
+sequenceDiagram
+    participant UI as Button Click
+    participant JS as stateMachine.js
+    participant VID as VideoElement
+    participant IMG as ImageElement
+    UI->>JS: click "Explore Design" (target 2)
+    JS->>VID: set src "1-2.webm"\nplay()
+    Note over VID: onended
+    VID-->>JS: ended
+    JS->>IMG: preload S2 image\nswap in
+    JS->>VID: hide
+  </pre>
+  <hr />
+  <h2 id="functions">3 · Key Functions Explained</h2>
+  <table>
+    <tr><th>Function</th><th>Why it matters</th></tr>
+    <tr><td><code>setupButtonListeners()</code></td><td>Delegates clicks from <code>.button-group</code>; prevents double‑clicking while a transition runs.</td></tr>
+    <tr><td><code>preloadAnimations()</code></td><td>Injects hidden <code>&lt;video&gt;</code> tags so the first play is stutter‑free.</td></tr>
+    <tr><td><code>transitionToState()</code></td><td>The brains: decides whether to play a WebM or do an “instant” swap; wraps everything in a <code>try/finally</code> so <code>isTransitioning</code> always resets.</td></tr>
+    <tr><td><code>instantTransition()</code></td><td>Fallback path; pre‑loads target still image to avoid white flashes on slow connections.</td></tr>
+    <tr><td><code>playTransitionAnimation()</code></td><td>Plays, waits for <code>ended</code>, then swaps in the target still; collapses to image if video errors out.</td></tr>
+  </table>
+  <hr />
+  <h2 id="styling">4 · Styling &amp; Layout Highlights</h2>
+  <ul>
+    <li><strong>CSS Grid</strong> splits text and media; <code>.visual-content</code> is sticky on desktop, flowing to top on mobile.</li>
+    <li><strong>Media container</strong> is square via <code>vh</code> units, giving retina‑sharpness on any screen.</li>
+    <li><strong>Fonts</strong> self‑hosted Roboto to dodge CDN latency.</li>
+    <li><strong>Dark‑logo hack</strong>: <code>filter: brightness(0) invert(1)</code> turns the PNG white so you keep a single asset.</li>
+  </ul>
+  <hr />
+  <h2 id="extend">5 · Extending the Demo</h2>
+  <ol>
+    <li><strong>Add a new state</strong>
+      <ul>
+        <li>Drop <code>stateN_static.webp</code> in <code>assets/animations/state-static/</code>.</li>
+        <li>Append a <code>states[N]</code> entry plus buttons.</li>
+        <li>Render WebM transitions and map them in <code>animations</code>.</li>
+      </ul></li>
+    <li><strong>Edge‑cache videos</strong> with GitHub Actions → Cloudflare R2 for sub‑500 ms first‑frame worldwide.</li>
+    <li><strong>Accessibility pass</strong>
+      <ul>
+        <li>Keyboard focus on buttons.</li>
+        <li><code>aria-label</code> for links.</li>
+        <li>Optional captions track in WebM for audio‑described mode.</li>
+      </ul></li>
+  </ol>
+  <hr />
+  
+  <script>
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+</body>
+</html>

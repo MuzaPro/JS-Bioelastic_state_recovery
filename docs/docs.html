@@ -3,132 +3,768 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bioelastic State Recovery • Docs</title>
+  <title>Bioelastic State Recovery • Developer Docs</title>
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --background: #ffffff;
-      --foreground: #111111;
-      --accent: #0066ff;
-      --code-bg: #f5f5f5;
-      --border: #e0e0e0;
+      /* Light mode */
+      --bg-primary: #ffffff;
+      --bg-secondary: #fafafa;
+      --bg-code: #f8f9fa;
+      --bg-accent: #fff8e1;
+      --text-primary: #1a1a1a;
+      --text-secondary: #666666;
+      --text-muted: #888888;
+      --border-light: #e5e5e5;
+      --border-medium: #d0d0d0;
+      --accent-yellow: #ffd700;
+      --accent-yellow-hover: #ffed4e;
+      --accent-yellow-dark: #f4c430;
+      --shadow-light: rgba(0, 0, 0, 0.05);
+      --shadow-medium: rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --background: #141414;
-        --foreground: #e8e8e8;
-        --accent: #66aaff;
-        --code-bg: #1e1e1e;
-        --border: #333333;
+
+    [data-theme="dark"] {
+      --bg-primary: #0f0f0f;
+      --bg-secondary: #1a1a1a;
+      --bg-code: #151515;
+      --bg-accent: #2a2416;
+      --text-primary: #e5e5e5;
+      --text-secondary: #b3b3b3;
+      --text-muted: #888888;
+      --border-light: #2a2a2a;
+      --border-medium: #404040;
+      --accent-yellow: #ffd700;
+      --accent-yellow-hover: #ffed4e;
+      --accent-yellow-dark: #f4c430;
+      --shadow-light: rgba(255, 255, 255, 0.05);
+      --shadow-medium: rgba(255, 255, 255, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      scroll-behavior: smooth;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    /* Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-light);
+      backdrop-filter: blur(10px);
+      padding: 1rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--accent-yellow);
+      color: var(--bg-primary);
+      text-decoration: none;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: var(--transition);
+      box-shadow: 0 2px 8px var(--shadow-medium);
+    }
+
+    .back-link:hover {
+      background: var(--accent-yellow-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px var(--shadow-medium);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      background: none;
+      border: 2px solid var(--border-medium);
+      border-radius: 50px;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent-yellow);
+      background: var(--bg-secondary);
+    }
+
+    .theme-icon {
+      width: 20px;
+      height: 20px;
+      fill: var(--text-primary);
+      transition: var(--transition);
+    }
+
+    /* Main Content */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-yellow-dark) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 3rem 0 1.5rem;
+      color: var(--text-primary);
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent-yellow);
+      display: inline-block;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem;
+      color: var(--text-primary);
+    }
+
+    h4 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin: 1.5rem 0 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    p {
+      margin-bottom: 1.25rem;
+      color: var(--text-secondary);
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 4rem;
+      padding: 2rem 0;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .meta-label {
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    /* Warning Box */
+    .warning {
+      background: var(--bg-accent);
+      border: 2px solid var(--accent-yellow);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .warning::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-yellow);
+    }
+
+    .warning strong {
+      color: var(--accent-yellow-dark);
+      font-weight: 600;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+      background: var(--bg-secondary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 1rem 1.25rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    th {
+      background: var(--bg-code);
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      color: var(--text-secondary);
+    }
+
+    td strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Code Blocks */
+    pre, code {
+      font-family: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    }
+
+    code {
+      background: var(--bg-code);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.9em;
+      color: var(--text-primary);
+      border: 1px solid var(--border-light);
+    }
+
+    pre {
+      background: var(--bg-code);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    /* Lists */
+    ul, ol {
+      margin: 1rem 0 1.5rem 1.5rem;
+      color: var(--text-secondary);
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    li strong {
+      color: var(--text-primary);
+    }
+
+    /* Blockquotes */
+    blockquote {
+      border-left: 4px solid var(--accent-yellow);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      background: var(--bg-secondary);
+      padding: 1.5rem;
+      border-radius: 0 12px 12px 0;
+    }
+
+    /* Links */
+    a {
+      color: var(--accent-yellow-dark);
+      text-decoration: none;
+      transition: var(--transition);
+      border-bottom: 1px solid transparent;
+    }
+
+    a:hover {
+      color: var(--accent-yellow);
+      border-bottom-color: var(--accent-yellow);
+    }
+
+    /* Dividers */
+    hr {
+      border: none;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--border-medium), transparent);
+      margin: 3rem 0;
+    }
+
+    /* Mermaid Diagrams */
+    .mermaid {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border: 1px solid var(--border-light);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
-    html { font-family: system-ui, sans-serif; background: var(--background); color: var(--foreground); line-height: 1.6; }
-    body { margin: 2rem 6vw; max-width: 960px; }
-    h1, h2, h3, h4 { color: var(--accent); line-height: 1.2; }
-    pre, code { font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
-    pre { background: var(--code-bg); padding: 1rem; overflow-x: auto; border-radius: 8px; }
-    table { border-collapse: collapse; width: 100%; margin-bottom: 1rem; }
-    th, td { border: 1px solid var(--border); padding: .5rem .7rem; text-align: left; }
-    blockquote { border-left: 4px solid var(--accent); padding-left: 1rem; margin-left: 0; color: var(--accent); font-style: italic; }
-    a { color: var(--accent); text-decoration: underline; }
-    hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+    .container > * {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1rem 2rem;
+      }
+
+      .header-content {
+        padding: 0 1rem;
+      }
+
+      h1 {
+        font-size: 2.25rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .hero-meta {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .table-container {
+        font-size: 0.9rem;
+      }
+
+      th, td {
+        padding: 0.75rem;
+      }
+
+      pre {
+        padding: 1rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      .header,
+      .theme-toggle {
+        display: none;
+      }
+
+      .container {
+        max-width: none;
+        padding: 0;
+      }
+
+      h1, h2, h3 {
+        page-break-after: avoid;
+      }
+
+      table, pre, blockquote {
+        page-break-inside: avoid;
+      }
+    }
   </style>
 </head>
 <body>
-  <a href="../index.html" style="display: inline-block; margin-bottom: 20px; padding: 8px 16px; background: var(--accent); color: white; text-decoration: none; border-radius: 4px;">← Back to Home</a>
-  
-  <h1>Bioelastic State Recovery — Developer Docs</h1>
-  <blockquote>A cinematic, five‑state interactive demo for breakthrough haptic‑transducer research</blockquote>
-  <p><strong>Last updated:</strong> 24 May 2025<br><strong>Maintainer:</strong> Muza Productions / Gabriele Meilikhov (<code>@MuzaPro</code>)</p>
-  <hr />
-  <h2 id="overview">1 · Project at a Glance</h2>
-  <table>
-    <tr><th>Aspect</th><th>Details</th></tr>
-    <tr><td><strong>Concept</strong></td><td>Turn a static Nature paper into a <em>movie‑like, click‑through journey</em> for lab sites &amp; grant pitches.</td></tr>
-    <tr><td><strong>Content Flow</strong></td><td>Five conceptual “states,” each with a hero still image plus forward video transitions.</td></tr>
-    <tr><td><strong>Tech Stack</strong></td><td>Vanilla HTML / CSS / JS, WebM videos rendered in Blender → graded in DaVinci; hosted on GitHub Pages.</td></tr>
-    <tr><td><strong>Performance Goal</strong></td><td>≤ 2 MB initial load, 60 fps on modern mobile, instant back‑navigation.</td></tr>
+  <header class="header">
+    <div class="header-content">
+      <a href="../index.html" class="back-link">
+        ← Back to Demo
+      </a>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+        <svg class="theme-icon" viewBox="0 0 24 24">
+          <path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="hero">
+      <h1>Bioelastic State Recovery</h1>
+      <p class="hero-subtitle">Developer Documentation</p>
+      <blockquote>A cinematic, interactive demo with intelligent state transitions and compound navigation paths</blockquote>
+      
+      <div class="hero-meta">
+        <div class="meta-item">
+          <span class="meta-label">Last updated:</span>
+          <span>31 May 2025</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Maintainer:</span>
+          <span>Muza Productions</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Version:</span>
+          <span>2.1.0</span>
+        </div>
+      </div>
+    </div>
     
-  </table>
-  <hr />
-  <h2 id="state-machine">2 · State‑Machine Primer</h2>
-  <p>All navigation is handled by the <code>states</code> object and a minimalist controller in <code>script.js</code>:</p>
-  <pre><code class="language-js">const states = {
-  1: { title: "...", buttons:[{ target:2 },{ target:4 }], image:"state1.webp" },
-  2: { title: "...", buttons:[{ target:1 },{ target:3 }], image:"state2.webp" },
-  /* 3 &amp; 5 are planned; 4 implemented; 5 WIP */
+    <div class="warning">
+      <strong>⚠️ Implementation Update:</strong> This documentation reflects the current advanced state machine with substates, compound transitions, and smart navigation fallbacks.
+    </div>
+    
+    <h2 id="overview">1 · Project Architecture</h2>
+    
+    <div class="table-container">
+      <table>
+        <tr><th>Aspect</th><th>Details</th></tr>
+        <tr><td><strong>Concept</strong></td><td>5-state interactive journey with substates and intelligent transition routing</td></tr>
+        <tr><td><strong>Navigation</strong></td><td>Bottom sticky nav bar with icon-based state switching + compound transition support</td></tr>
+        <tr><td><strong>State System</strong></td><td>Primary states (1-5) + substates (3B) + automatic routing through intermediate states</td></tr>
+        <tr><td><strong>Transition Logic</strong></td><td>Direct animations where available, compound transitions via intermediate states when needed</td></tr>
+        <tr><td><strong>Performance</strong></td><td>Preloaded animations, graceful fallbacks, mobile-optimized with 60fps target</td></tr>
+      </table>
+    </div>
+    
+    <h2 id="state-machine">2 · Advanced State Machine</h2>
+    
+    <h3>State Structure</h3>
+    <pre><code class="language-js">const states = {
+    1: { title: "Breakthrough Haptic Technology", image: "state1_static.webp" },
+    2: { title: "Precision Engineering", image: "state2_static.webp" },
+    3: { title: "Force Distribution", image: "state3-static.webp", hasSubstate: true, currentSubstate: "A" },
+    "3B": { title: "Force Distribution", image: "state3b-static.webp", hasSubstate: true, currentSubstate: "B" },
+    4: { title: "Scalable Haptic Arrays", image: "state4_static.webp" },
+    5: { title: "Sensory Feedback", image: "state5_static.webp" }
 };
-const animations = { "1-2":"1-2.webm", "1-4":"1-4.webm" };
-</code></pre>
-  <p><strong>Forward moves</strong> (<code>1 → 2</code>, <code>1 → 4</code>) play a pre‑rendered WebM.<br>
-     <strong>Reverse moves</strong> skip video and swap stills instantly.<br>
-     Future non‑linear jumps simply need a new WebM + mapping in <code>animations</code>.</p>
-  <h3>Logical State Graph</h3>
-  <pre class="mermaid">
+
+const animations = {
+    "1-2": "state1-to-state2.webm",
+    "2-1": "state2-to-state1.webm", 
+    "1-4": "state1-to-state4.webm",
+    "4-1": "state4-to-state1.webm",
+    "2-3": "state2-to-state3.webm",
+    "3-2": "state3-to-state2.webm",
+    "2-4": "state2-to-state4.webm", 
+    "4-2": "state4-to-state2.webm",
+    "3-3B": "3Ato3B.webm",
+    "3B-3": "3Bto3A.webm"
+};</code></pre>
+
+    <h3>Intelligent Transition Routing</h3>
+    <p>The system automatically routes transitions through intermediate states when direct animations don't exist:</p>
+    <ul>
+      <li><strong>Direct transitions:</strong> Play available WebM animations</li>
+      <li><strong>Compound transitions:</strong> Route via intermediate state (e.g., 1→3 goes 1→2→3)</li>
+      <li><strong>Substate handling:</strong> State 3B always routes through 3A before going elsewhere</li>
+      <li><strong>Graceful fallbacks:</strong> Instant image swaps when animations fail</li>
+    </ul>
+
+    <h3>Current State Graph</h3>
+    <pre class="mermaid">
 stateDiagram-v2
-    %% Nodes
     [*] --> S1 : page load
-    S1 --> S2 : Explore Design
-    S1 --> S4 : View Applications
-    S2 --> S1 : Back to Start
-    S2 --> S3 : Explore Mechanics
-    S4 --> S1 : Back to Start
-    S4 --> S5 : See Demo
-  </pre>
-  <h3>Play‑Transition Sequence</h3>
-  <pre class="mermaid">
+    S1 --> S2 : direct animation
+    S1 --> S4 : direct animation  
+    S2 --> S1 : direct animation
+    S2 --> S3 : direct animation
+    S2 --> S4 : direct animation
+    S3 --> S2 : direct animation
+    S3 --> S3B : substate toggle
+    S3B --> S3 : substate toggle
+    S3B --> S2 : via S3 (compound)
+    S4 --> S1 : direct animation
+    S4 --> S2 : direct animation
+    S1 --> S3 : via S2 (compound)
+    S3 --> S1 : via S2 (compound)
+    S1 --> S5 : via S2→S4 (compound)
+    S3 --> S4 : via S2 (compound)
+    S4 --> S5 : planned
+    S5 --> S4 : planned
+    </pre>
+
+    <h2 id="functions">3 · Core Functions</h2>
+    
+    <div class="table-container">
+      <table>
+        <tr><th>Function</th><th>Purpose</th><th>Key Features</th></tr>
+        <tr><td><code>setupNavListeners()</code></td><td>Attaches click handlers to bottom nav icons</td><td>Prevents double-clicking during transitions</td></tr>
+        <tr><td><code>transitionToState(targetState)</code></td><td>Master transition controller</td><td>Handles direct, compound, and substate transitions</td></tr>
+        <tr><td><code>performCompoundTransition(from, via, to)</code></td><td>Routes transitions through intermediate states</td><td>Seamless multi-hop navigation with timing control</td></tr>
+        <tr><td><code>toggleState3Substate()</code></td><td>Switches between 3A and 3B views</td><td>Same content, different visual perspective</td></tr>
+        <tr><td><code>playTransitionAnimation(path, target)</code></td><td>Handles WebM playback and fallbacks</td><td>Error recovery, proper video/image switching</td></tr>
+        <tr><td><code>updateActiveNav()</code></td><td>Manages nav bar highlighting</td><td>Special handling for substates (3B highlights nav item 3)</td></tr>
+        <tr><td><code>preloadAnimations()</code></td><td>Background loads all WebM files</td><td>Prevents first-play stuttering</td></tr>
+      </table>
+    </div>
+
+    <h3>Compound Transition Flow</h3>
+    <pre class="mermaid">
 sequenceDiagram
-    participant UI as Button Click
-    participant JS as stateMachine.js
-    participant VID as VideoElement
-    participant IMG as ImageElement
-    UI->>JS: click "Explore Design" (target 2)
-    JS->>VID: set src "1-2.webm"\nplay()
-    Note over VID: onended
-    VID-->>JS: ended
-    JS->>IMG: preload S2 image\nswap in
-    JS->>VID: hide
-  </pre>
-  <hr />
-  <h2 id="functions">3 · Key Functions Explained</h2>
-  <table>
-    <tr><th>Function</th><th>Why it matters</th></tr>
-    <tr><td><code>setupButtonListeners()</code></td><td>Delegates clicks from <code>.button-group</code>; prevents double‑clicking while a transition runs.</td></tr>
-    <tr><td><code>preloadAnimations()</code></td><td>Injects hidden <code>&lt;video&gt;</code> tags so the first play is stutter‑free.</td></tr>
-    <tr><td><code>transitionToState()</code></td><td>The brains: decides whether to play a WebM or do an “instant” swap; wraps everything in a <code>try/finally</code> so <code>isTransitioning</code> always resets.</td></tr>
-    <tr><td><code>instantTransition()</code></td><td>Fallback path; pre‑loads target still image to avoid white flashes on slow connections.</td></tr>
-    <tr><td><code>playTransitionAnimation()</code></td><td>Plays, waits for <code>ended</code>, then swaps in the target still; collapses to image if video errors out.</td></tr>
-  </table>
-  <hr />
-  <h2 id="styling">4 · Styling &amp; Layout Highlights</h2>
-  <ul>
-    <li><strong>CSS Grid</strong> splits text and media; <code>.visual-content</code> is sticky on desktop, flowing to top on mobile.</li>
-    <li><strong>Media container</strong> is square via <code>vh</code> units, giving retina‑sharpness on any screen.</li>
-    <li><strong>Fonts</strong> self‑hosted Roboto to dodge CDN latency.</li>
-    <li><strong>Dark‑logo hack</strong>: <code>filter: brightness(0) invert(1)</code> turns the PNG white so you keep a single asset.</li>
-  </ul>
-  <hr />
-  <h2 id="extend">5 · Extending the Demo</h2>
-  <ol>
-    <li><strong>Add a new state</strong>
-      <ul>
-        <li>Drop <code>stateN_static.webp</code> in <code>assets/animations/state-static/</code>.</li>
-        <li>Append a <code>states[N]</code> entry plus buttons.</li>
-        <li>Render WebM transitions and map them in <code>animations</code>.</li>
-      </ul></li>
-    <li><strong>Edge‑cache videos</strong> with GitHub Actions → Cloudflare R2 for sub‑500 ms first‑frame worldwide.</li>
-    <li><strong>Accessibility pass</strong>
-      <ul>
-        <li>Keyboard focus on buttons.</li>
-        <li><code>aria-label</code> for links.</li>
-        <li>Optional captions track in WebM for audio‑described mode.</li>
-      </ul></li>
-  </ol>
-  <hr />
-  
+    participant UI as Nav Click
+    participant TM as transitionToState()
+    participant CT as performCompoundTransition()
+    participant V1 as Video 1→2
+    participant V2 as Video 2→3
+    participant IMG as Final Image
+    
+    UI->>TM: click state 3 (from state 1)
+    TM->>TM: check: no direct "1-3" animation
+    TM->>CT: route via state 2
+    CT->>V1: play "1-2.webm"
+    V1-->>CT: ended
+    Note over CT: 100ms pause
+    CT->>V2: play "2-3.webm" 
+    V2-->>CT: ended
+    CT->>IMG: load state 3 image
+    CT-->>TM: compound transition complete
+    TM->>TM: update content & nav
+    </pre>
+
+    <h2 id="ui-system">4 · User Interface</h2>
+    
+    <h3>Navigation Bar</h3>
+    <ul>
+      <li><strong>Position:</strong> Sticky bottom bar (mobile-first design)</li>
+      <li><strong>Icons:</strong> FontAwesome + custom SVG icons for each state</li>
+      <li><strong>Active State:</strong> Highlighted with underline accent</li>
+      <li><strong>Substate Handling:</strong> State 3B highlights the State 3 nav item</li>
+    </ul>
+
+    <h3>State 3 Switch Button</h3>
+    <p>When in state 3 or 3B, a "Switch" button appears that toggles between the two perspectives using dedicated transition animations.</p>
+
+    <h3>Responsive Layout</h3>
+    <ul>
+      <li><strong>Desktop:</strong> Grid layout with sticky visual content</li>
+      <li><strong>Mobile:</strong> Single column, visual above text content</li>
+      <li><strong>Media Container:</strong> Square aspect ratio using vh units</li>
+    </ul>
+
+    <h2 id="extend">5 · Extension Guide</h2>
+    
+    <h3>Adding a New Primary State</h3>
+    <ol>
+      <li>Add static image: <code>assets/animations/state-static/stateN_static.webp</code></li>
+      <li>Update <code>states</code> object with new entry</li>
+      <li>Create transition animations and add to <code>animations</code> object</li>
+      <li>Add navigation icon to HTML and update CSS selectors</li>
+    </ol>
+
+    <h3>Adding Substates (like 3B)</h3>
+    <ol>
+      <li>Add <code>hasSubstate: true</code> and <code>currentSubstate</code> to parent state</li>
+      <li>Create new state entry with string key (e.g., "3B")</li>
+      <li>Add toggle animations to <code>animations</code> object</li>
+      <li>The switch button will appear automatically</li>
+    </ol>
+
+    <h3>Adding New Transition Paths</h3>
+    <p>If direct animation doesn't exist, the system will automatically route through the most logical intermediate state (usually state 2). To add custom routing:</p>
+    <pre><code class="language-js">// In performCompoundTransition(), add custom routing logic
+if (currentState === 4 && targetState === 3) {
+    await performCompoundTransition(currentState, 2, targetState);
+}</code></pre>
+
+    <h3>Performance Optimizations</h3>
+    <ul>
+      <li><strong>Video Compression:</strong> Target 1-2MB per WebM file</li>
+      <li><strong>CDN Hosting:</strong> Move assets to Cloudflare R2 for global edge caching</li>
+      <li><strong>Lazy Loading:</strong> Load animations only when approaching that transition</li>
+      <li><strong>Format Fallbacks:</strong> Add MP4 versions for older browser support</li>
+    </ul>
+
+    <h2 id="debugging">6 · Debugging & Troubleshooting</h2>
+    
+    <h3>Common Issues</h3>
+    <div class="table-container">
+      <table>
+        <tr><th>Issue</th><th>Cause</th><th>Solution</th></tr>
+        <tr><td>White flash during transition</td><td>Image not preloaded</td><td>Check image paths, ensure preloading completes</td></tr>
+        <tr><td>Stuck in transitioning state</td><td>Error in animation playback</td><td>Check browser console, verify WebM format</td></tr>
+        <tr><td>Nav not highlighting correctly</td><td>Substate logic issue</td><td>Check <code>updateActiveNav()</code> special cases</td></tr>
+        <tr><td>Compound transition breaks</td><td>Missing intermediate animation</td><td>Add fallback or create missing WebM file</td></tr>
+      </table>
+    </div>
+
+    <h3>Debug Console Output</h3>
+    <p>The system logs transition paths:</p>
+    <pre><code>// Normal direct transition
+"Playing direct transition: 1 → 2"
+
+// Compound transition  
+"Using compound transition: 1 → 2 → 3"
+"First leg complete: 1 → 2"
+"Second leg complete: 2 → 3"
+
+// Substate toggle
+"Toggling state 3 substate: A → B"</code></pre>
+
+    <h2 id="technical-specs">7 · Technical Specifications</h2>
+    
+    <div class="table-container">
+      <table>
+        <tr><th>Component</th><th>Specification</th></tr>
+        <tr><td><strong>Video Format</strong></td><td>WebM (VP9 codec, 25fps, 1920×1080)</td></tr>
+        <tr><td><strong>Image Format</strong></td><td>WebP (optimized for quality/size balance)</td></tr>
+        <tr><td><strong>Transition Duration</strong></td><td>1 second per animation</td></tr>
+        <tr><td><strong>Browser Support</strong></td><td>Chrome 88+, Firefox 85+, Safari 14+</td></tr>
+        <tr><td><strong>Mobile Support</strong></td><td>iOS 14+, Android 8+</td></tr>
+        <tr><td><strong>Dependencies</strong></td><td>None (vanilla JavaScript)</td></tr>
+      </table>
+    </div>
+
+    <hr />
+    <p><em>For implementation questions or feature requests, contact the development team or open an issue in the repository.</em></p>
+  </div>
+
   <script>
-    mermaid.initialize({ startOnLoad: true });
+    // Theme management
+    function getPreferredTheme() {
+      const stored = localStorage.getItem('theme');
+      if (stored) return stored;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+      
+      // Update mermaid theme
+      if (window.mermaid) {
+        const mermaidTheme = theme === 'dark' ? 'dark' : 'base';
+        window.mermaid.initialize({ 
+          startOnLoad: true,
+          theme: mermaidTheme,
+          themeVariables: {
+            primaryColor: theme === 'dark' ? '#ffd700' : '#f4c430',
+            primaryTextColor: theme === 'dark' ? '#e5e5e5' : '#1a1a1a',
+            primaryBorderColor: theme === 'dark' ? '#404040' : '#e5e5e5',
+            lineColor: theme === 'dark' ? '#888888' : '#666666',
+            background: theme === 'dark' ? '#1a1a1a' : '#fafafa'
+          }
+        });
+        
+        // Re-render mermaid diagrams
+        const mermaidElements = document.querySelectorAll('.mermaid');
+        mermaidElements.forEach(element => {
+          element.removeAttribute('data-processed');
+        });
+        window.mermaid.init();
+      }
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      setTheme(next);
+    }
+
+    // Initialize theme
+    document.addEventListener('DOMContentLoaded', () => {
+      setTheme(getPreferredTheme());
+    });
+
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+
+    // Initialize Mermaid
+    if (window.mermaid) {
+      window.mermaid.initialize({ 
+        startOnLoad: true,
+        theme: getPreferredTheme() === 'dark' ? 'dark' : 'base',
+        themeVariables: {
+          primaryColor: '#ffd700',
+          primaryTextColor: getPreferredTheme() === 'dark' ? '#e5e5e5' : '#1a1a1a',
+          primaryBorderColor: getPreferredTheme() === 'dark' ? '#404040' : '#e5e5e5',
+          lineColor: getPreferredTheme() === 'dark' ? '#888888' : '#666666'
+        }
+      });
+    }
   </script>
 </body>
 </html>

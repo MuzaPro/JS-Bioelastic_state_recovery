@@ -1,3 +1,4 @@
+// State Machine Animation Script
 // State management
 const states = {
     1: {
