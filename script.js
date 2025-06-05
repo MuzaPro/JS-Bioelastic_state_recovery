@@ -71,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNavListeners();
     preloadAnimations();
     updateActiveNav();
+    // Setup click navigation on visuals
+    setupVisualClickNavigation();
 });
 
 // Setup nav listeners
@@ -301,12 +303,19 @@ async function toggleState3Substate() {
     if (isTransitioning) return;
     
     isTransitioning = true;
+    console.log("Before toggle - Current state:", currentState, "Type:", typeof currentState);
     
     try {
-        const currentSubstate = states[currentState].currentSubstate;
-        const targetSubstate = currentSubstate === "A" ? "3B" : "3";
+        // Fix: Ensure we're using the right type for states
+        let targetSubstate;
+        if (currentState === 3) {
+            targetSubstate = "3B";
+        } else {
+            // Important: Convert string "3" to number 3
+            targetSubstate = 3;  // This must be number 3, not string "3"
+        }
         
-        console.log(`Toggling state 3 substate: ${currentSubstate} → ${states[targetSubstate].currentSubstate}`);
+        console.log(`Toggling state 3 substate to: ${targetSubstate}, Type: ${typeof targetSubstate}`);
         
         // Play transition animation
         const key = `${currentState}-${targetSubstate}`;
@@ -320,6 +329,7 @@ async function toggleState3Substate() {
         
         // Update state (but not content since title and description stay the same)
         currentState = targetSubstate;
+        console.log("After toggle - Current state:", currentState, "Type:", typeof currentState);
         
         // Update active nav state - state 3 remains highlighted
         updateActiveNav();
@@ -381,6 +391,46 @@ function updateContent(stateId) {
         
         description.insertAdjacentElement('afterend', switchBtn);
     }
+}
+
+// Modify the setupVisualClickNavigation function to keep state 3/3B in a loop
+function setupVisualClickNavigation() {
+    const visualContent = document.querySelector('.visual-content');
+    
+    visualContent.addEventListener('click', () => {
+        if (isTransitioning) return;
+        
+        let nextState;
+        
+        // Determine next state based on current state
+        switch(currentState) {
+            case 1:
+                nextState = 2;
+                break;
+            case 2:
+                nextState = 3;
+                break;
+            case 3:
+                // Toggle to 3B and stay in this case for future clicks
+                toggleState3Substate();
+                return;
+            case "3B":
+                // Toggle back to 3 and stay in this case for future clicks
+                toggleState3Substate();
+                return;
+            case 4:
+                nextState = 5;
+                break;
+            case 5:
+                nextState = 1;
+                break;
+            default:
+                nextState = 1;
+        }
+        
+        // Regular transition for non-3/3B states
+        transitionToState(nextState);
+    });
 }
 
 // Utility delay

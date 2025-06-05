@@ -191,6 +191,8 @@ body {
     position: sticky;
     top: 100px; /* Keep visual in place when scrolling */
     align-self: center;
+    cursor: pointer;
+    z-index: 900; /* Add z-index that's lower than nav bar */
 }
 
 .media-container {
@@ -226,6 +228,24 @@ body {
 }
 
 .state-animation.playing {
+    opacity: 1;
+}
+
+/* Optional: Add a subtle indicator on hover */
+.visual-content::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4V8z"/></svg>');
+    background-size: contain;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.visual-content:hover::after {
     opacity: 1;
 }
 
