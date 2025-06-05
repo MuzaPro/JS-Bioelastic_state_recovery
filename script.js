@@ -28,12 +28,14 @@ const states = {
     4: {
         title: "Scalable Haptic Arrays",
         description: "Multiple transducers integrate into flexible arrays capable of rendering complex spatial patterns across the skin. The wireless control system coordinates up to 19 individual units, each operating independently to create rich tactile experiences. A compact battery powers the entire array for over 3 hours of continuous operation. This scalable architecture enables applications ranging from sensory substitution for the visually impaired to immersive virtual reality interfaces.",
-        image: "assets/animations/state-static/state4_static.webp"
+        image: "assets/animations/state-static/state4_static.webp",
+        contextImage: "assets/images/Device_on_neck.jpeg" // Added context image
     },
     5: {
         title: "Sensory Feedback",
         description: "User studies demonstrate the transducer's ability to create distinguishable tactile sensations with high spatial and temporal resolution. Participants successfully identified complex patterns rendered by the haptic array with over 95% accuracy after minimal training. The device's energy-efficient operation allows for extended use without discomfort or skin irritation. This technology opens new possibilities for human-machine interfaces, sensory augmentation, and medical applications requiring precise tactile feedback.",
-        image: "assets/animations/state-static/state5_static.webp"
+        image: "assets/images/use-case-1.webp"
+        // contextImage: "path/to/another/image.jpg" // Uncomment and set path if context image needed
     }
 };
 
@@ -337,7 +339,35 @@ function updateContent(stateId) {
     mainTitle.textContent = state.title;
     description.textContent = state.description;
     
-    // Add or remove the switch button based on whether we're in state 3 or 3B
+    // Handle context image
+    const contextImageContainer = document.querySelector('.context-image-container');
+    
+    // If there's a context image for this state
+    if (state.contextImage) {
+        // Create/update the image
+        let contextImage = contextImageContainer.querySelector('.context-image');
+        if (!contextImage) {
+            contextImage = document.createElement('img');
+            contextImage.className = 'context-image';
+            contextImageContainer.appendChild(contextImage);
+        }
+        
+        // Set or update the image source with fade effect
+        if (contextImage.src !== state.contextImage) {
+            contextImageContainer.classList.add('fade-out');
+            setTimeout(() => {
+                contextImage.src = state.contextImage;
+                contextImage.onload = () => {
+                    contextImageContainer.classList.remove('fade-out');
+                };
+            }, 300);
+        }
+    } else {
+        // If this state doesn't have a context image, clear the container
+        contextImageContainer.innerHTML = '';
+    }
+    
+    // Existing code for switch button
     const existingSwitchBtn = document.querySelector('.switch-btn');
     if (existingSwitchBtn) {
         existingSwitchBtn.remove();
