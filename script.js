@@ -84,14 +84,14 @@ function setupNavListeners() {
 }
 
 // Update active nav state
-function updateActiveNav() {
+function updateActiveNav(stateToHighlight = currentState) {
     navLinks.forEach(link => {
         // For state 3B, highlight the state 3 nav button
-        if (currentState === "3B" && Number(link.dataset.state) === 3) {
+        if (stateToHighlight === "3B" && Number(link.dataset.state) === 3) {
             link.classList.add('active');
         } else {
             // Normal numeric comparison for other states
-            link.classList.toggle('active', Number(link.dataset.state) === currentState);
+            link.classList.toggle('active', Number(link.dataset.state) === stateToHighlight);
         }
     });
 }
@@ -114,6 +114,9 @@ async function transitionToState(targetState) {
     if (isTransitioning || targetState === currentState) return;
 
     isTransitioning = true;
+    
+    // Immediately update the active nav to give visual feedback
+    updateActiveNav(targetState);
 
     const key = `${currentState}-${targetState}`;
     const animationPath = animations[key];
@@ -155,21 +158,19 @@ async function transitionToState(targetState) {
 
         // Update content
         updateContent(targetState);
+        
+        // Fade the content back in
+        textContent.classList.remove('fade-out');
 
         // Update state
         currentState = targetState;
 
-        // Update nav state
-        updateActiveNav();
-
-        // Fade in new content
-        textContent.classList.remove('fade-out');
     } catch (error) {
         console.error('Transition error:', error);
         // Recovery in case of error - still update the content
         updateContent(targetState);
         currentState = targetState;
-        updateActiveNav();
+        updateActiveNav(); // In case of error, make sure nav reflects actual state
         textContent.classList.remove('fade-out');
     } finally {
         isTransitioning = false;
