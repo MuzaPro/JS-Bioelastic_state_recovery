@@ -249,6 +249,23 @@ body {
     opacity: 1;
 }
 
+/* Prevent selection on visual content for mobile */
+.visual-content,
+.media-container,
+.state-visual,
+.state-animation {
+    -webkit-user-select: none;  /* Safari */
+    -ms-user-select: none;      /* IE/Edge */
+    user-select: none;          /* Standard syntax */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on iOS */
+    outline: none; /* Remove focus outline */
+}
+
+/* Ensure clickable cursor is still shown */
+.visual-content {
+    cursor: pointer;
+}
+
 /* Footer */
 .site-footer {
     background-color: #29292A;
