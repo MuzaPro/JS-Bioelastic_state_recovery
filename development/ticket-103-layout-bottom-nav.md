@@ -1,7 +1,7 @@
 
 # Ticket #103 · Layout Update — Bottom Nav, Divider & Citation Footer
 
-**Owner:** <your‑name>  
+**Owner:** Gabriele  
 **Priority:** Medium‑High (UI polish)  
 **Branch:** `feature/layout-bottom-nav`
 

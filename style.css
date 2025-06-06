@@ -26,7 +26,7 @@ body {
     color: #333;
     background-color: #ffffff;
     line-height: 1.6;
-    padding-bottom: 68px; /* nav height safeguard */
+    padding-bottom: 0; /* used to be 64 for nav height safeguard */
 }
 
 /* Container */

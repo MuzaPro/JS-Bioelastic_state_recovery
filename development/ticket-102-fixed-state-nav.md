@@ -1,7 +1,8 @@
 
 # Ticket #102 · Front‑End Refactor — **Fixed 5‑State Navigation Bar**
 
-**Owner:** <your‑name>  
+**Owner:** Gabriele 
+
 **Priority:** High (blocks all upcoming UI tweaks)  
 **Branch:** `feature/fixed-state-nav`
 
