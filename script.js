@@ -119,62 +119,72 @@ async function transitionToState(targetState) {
 
     isTransitioning = true;
     
-    // Immediately update the active nav to give visual feedback
+    // Immediately update the active nav
     updateActiveNav(targetState);
-
+    
+    // Start fading out text content immediately
+    textContent.classList.add('fade-out');
+    
     const key = `${currentState}-${targetState}`;
     const animationPath = animations[key];
     
     try {
-        // First check if we're coming from state 3B - we must always go through 3A first
-        if (currentState === "3B" && targetState !== 3) {
-            console.log(`Coming from 3B: First going to 3A, then to ${targetState}`);
-            await performCompoundTransition("3B", 3, targetState);
+        // Handle different transition cases
+        if (currentState === "3B") {
+            if (targetState === 3) {
+                // Direct transition from 3B to 3
+                await playTransitionAnimation(animations["3B-3"], targetState);
+            } 
+            else if (targetState === 2) {
+                // Double transition: 3B → 3 → 2
+                await performCompoundTransition("3B", 3, targetState);
+            }
+            else if (targetState === 5) {
+                // Direct cut to state 5 - no animation
+                await wait(150);
+                updateContent(targetState);
+                textContent.classList.remove('fade-out');
+                await instantTransition(targetState);
+            }
+            else if (targetState === 1 || targetState === 4) {
+                // Triple transition: 3B → 3 → 2 → target
+                await performTripleTransition("3B", 3, 2, targetState);
+            }
+            else {
+                // Fallback for any other targets
+                await performCompoundTransition("3B", 3, targetState);
+            }
         }
-        // Check if we need a compound transition
         else if (!animationPath) {
-            // For state 1-3 transitions, go through state 2
+            // Handle other compound transitions
             if ((currentState === 1 && targetState === 3) || 
                 (currentState === 3 && targetState === 1)) {
-                console.log(`Using compound transition: ${currentState} → 2 → ${targetState}`);
                 await performCompoundTransition(currentState, 2, targetState);
             } 
-            // For state 3-4 or 3-5 transitions, also go through state 2
             else if ((currentState === 3 && (targetState === 4 || targetState === 5)) ||
                      ((currentState === 4 || currentState === 5) && targetState === 3)) {
-                console.log(`Using compound transition: ${currentState} → 2 → ${targetState}`);
                 await performCompoundTransition(currentState, 2, targetState);
             }
             else {
-                // Fallback to instant transition if no animation path exists
-                console.log(`No animation found for transition ${currentState}-${targetState}, using instant transition`);
+                // For instant transitions, handle text update directly
+                await wait(150);
+                updateContent(targetState);
+                textContent.classList.remove('fade-out');
                 await instantTransition(targetState);
             }
         } else {
-            // Direct transition animation exists
-            console.log(`Playing direct transition: ${currentState} → ${targetState}`);
+            // Let the animation function handle text timing
             await playTransitionAnimation(animationPath, targetState);
         }
-
-        // Fade out current content
-        textContent.classList.add('fade-out');
-        await wait(300);
-
-        // Update content
-        updateContent(targetState);
-        
-        // Fade the content back in
-        textContent.classList.remove('fade-out');
 
         // Update state
         currentState = targetState;
 
     } catch (error) {
         console.error('Transition error:', error);
-        // Recovery in case of error - still update the content
         updateContent(targetState);
         currentState = targetState;
-        updateActiveNav(); // In case of error, make sure nav reflects actual state
+        updateActiveNav();
         textContent.classList.remove('fade-out');
     } finally {
         isTransitioning = false;
@@ -183,41 +193,78 @@ async function transitionToState(targetState) {
 
 // New function to handle compound transitions through an intermediate state
 async function performCompoundTransition(fromState, intermediateState, toState) {
-    console.log(`Starting compound transition: ${fromState} → ${intermediateState} → ${toState}`);
-    
     try {
-        // First transition: from current to intermediate
+        // First transition - skip text update
         const firstKey = `${fromState}-${intermediateState}`;
         const firstAnimation = animations[firstKey];
         
-        // Only update the visual, not the content yet
         if (firstAnimation) {
-            await playTransitionAnimation(firstAnimation, intermediateState);
-            console.log(`First leg complete: ${fromState} → ${intermediateState}`);
+            await playTransitionAnimation(firstAnimation, intermediateState, false);
         } else {
             await instantTransition(intermediateState);
-            console.log(`First leg complete (instant): ${fromState} → ${intermediateState}`);
         }
         
-        // Brief pause between animations
-        await wait(100);
+        // Reduce pause between animations
+        await wait(50);
         
-        // Second transition: from intermediate to target
+        // Second transition - update text
         const secondKey = `${intermediateState}-${toState}`;
         const secondAnimation = animations[secondKey];
         
         if (secondAnimation) {
-            await playTransitionAnimation(secondAnimation, toState);
-            console.log(`Second leg complete: ${intermediateState} → ${toState}`);
+            await playTransitionAnimation(secondAnimation, toState, true);
         } else {
+            // For direct jumps, update text manually
+            updateContent(toState);
+            textContent.classList.remove('fade-out');
             await instantTransition(toState);
-            console.log(`Second leg complete (instant): ${intermediateState} → ${toState}`);
         }
-        
-        console.log(`Compound transition complete: ${fromState} → ${intermediateState} → ${toState}`);
     } catch (error) {
         console.error('Error in compound transition:', error);
-        // Fallback to direct instant transition in case of error
+        await instantTransition(toState);
+    }
+}
+
+// Similarly update the triple transition function
+async function performTripleTransition(fromState, firstIntermediate, secondIntermediate, toState) {
+    try {
+        // First two transitions - skip text updates
+        const firstKey = `${fromState}-${firstIntermediate}`;
+        const firstAnimation = animations[firstKey];
+        
+        if (firstAnimation) {
+            await playTransitionAnimation(firstAnimation, firstIntermediate, false);
+        } else {
+            await instantTransition(firstIntermediate);
+        }
+        
+        await wait(50);
+        
+        const secondKey = `${firstIntermediate}-${secondIntermediate}`;
+        const secondAnimation = animations[secondKey];
+        
+        if (secondAnimation) {
+            await playTransitionAnimation(secondAnimation, secondIntermediate, false);
+        } else {
+            await instantTransition(secondIntermediate);
+        }
+        
+        await wait(50);
+        
+        // Final transition - update text
+        const thirdKey = `${secondIntermediate}-${toState}`;
+        const thirdAnimation = animations[thirdKey];
+        
+        if (thirdAnimation) {
+            await playTransitionAnimation(thirdAnimation, toState, true);
+        } else {
+            // Update text manually for the final state
+            updateContent(toState);
+            textContent.classList.remove('fade-out');
+            await instantTransition(toState);
+        }
+    } catch (error) {
+        console.error('Error in triple transition:', error);
         await instantTransition(toState);
     }
 }
@@ -244,14 +291,28 @@ function instantTransition(targetState) {
     });
 }
 
-// Play transition animation
-function playTransitionAnimation(animationPath, targetState) {
+// Modify the playTransitionAnimation function to begin text transition earlier
+function playTransitionAnimation(animationPath, targetState, updateTextContent = true) {
     return new Promise((resolve, reject) => {
         stateAnimation.src = animationPath;
 
         stateAnimation.onloadedmetadata = () => {
             stateAnimation.currentTime = 0;
             stateAnimation.playbackRate = 1;
+            
+            // Only update text if specified
+            if (updateTextContent) {
+                // Calculate when to start text transition (around 70% into the animation)
+                const videoDuration = stateAnimation.duration * 1000; // in milliseconds
+                const textStartTime = Math.max(videoDuration * 0.7, 300); // at least 300ms
+                
+                // Start a timer to update text before animation ends
+                setTimeout(() => {
+                    // Update content and start fade-in while animation is still playing
+                    updateContent(targetState);
+                    textContent.classList.remove('fade-out');
+                }, textStartTime);
+            }
 
             // Show the video instantly
             stateAnimation.classList.add('playing');
@@ -370,7 +431,7 @@ function updateContent(stateId) {
                 contextImage.onload = () => {
                     contextImageContainer.classList.remove('fade-out');
                 };
-            }, 300);
+            }, 150);
         }
     } else {
         // If this state doesn't have a context image, clear the container
